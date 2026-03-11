@@ -1,0 +1,29 @@
+services:
+  ros2_jazzy:
+    build: . 
+    image: var_ros2_image
+    container_name: var_container
+    network_mode: host
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - ROS_LOCALHOST_ONLY=1 # Config para trabajar en local sin compartir red
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw        # Compartir gráficos
+      - ./ros2_ws:/home/ros2_ws/src             # Persistencia de archivos 
+      # / home/pclocal/local_dir:/home/docker/catkin_ws/src/docker_dir
+    privileged: true                            # Permisos para hardware
+    stdin_open: true
+    tty: true
+
+    # BLOQUE PARA ACTIVAR LA GPU
+    #deploy:
+      #resources:
+        #reservations:
+          #devices:
+            #- driver: nvidia
+              #count: all      
+              #capabilities: [gpu]
+
+    command: sh -c "chown -R 1000:1000 /home/ros2_ws/src && bash"
+    # Dar permisos de escritura al usuario no root (1000) desde fuera del contenedor en el volumen montado
