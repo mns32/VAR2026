@@ -2,6 +2,12 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <limits>
+#include <string>
+#include <cmath>
+#include <algorithm>
+
+#include <Eigen/Dense>
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -13,60 +19,26 @@
 #include <pcl/search/kdtree.h>
 #include <pcl/filters/voxel_grid.h>
 
-#include <pcl/keypoints/sift_keypoint.h>
 #include <pcl/keypoints/harris_3d.h>
-
 #include <pcl/features/normal_3d.h>
-#include <pcl/features/fpfh.h>
 #include <pcl/features/shot.h>
+
+#include <pcl/correspondence.h>
+#include <pcl/registration/correspondence_estimation.h>
+#include <pcl/registration/correspondence_rejection_sample_consensus.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 
-using PointRGB = pcl::PointXYZRGB;        // nube con color
-using PointI = pcl::PointXYZI;            // nube con intensidad
-using PointXYZ = pcl::PointXYZ;           // nube solo geométrica
-using SIFTPoint = pcl::PointWithScale;    // tipo de punto que devuelve SIFT
-using SHOTDesc = pcl::SHOT352;            // tipo de descriptor SHOT
-
-struct FeaturesResult
-{
-    pcl::PointCloud<PointXYZ>::Ptr keypoints;               // keypoints detectados
-    pcl::PointCloud<pcl::FPFHSignature33>::Ptr descriptors; // descriptores FPFH
-};
+using PointRGB = pcl::PointXYZRGB;
+using PointI = pcl::PointXYZI;
+using PointXYZ = pcl::PointXYZ;
+using SHOTDesc = pcl::SHOT352;
 
 struct FeaturesResultSHOT
 {
-    pcl::PointCloud<PointXYZ>::Ptr keypoints;   // keypoints detectados
-    pcl::PointCloud<SHOTDesc>::Ptr descriptors; // descriptores SHOT
+    pcl::PointCloud<PointXYZ>::Ptr keypoints;
+    pcl::PointCloud<SHOTDesc>::Ptr descriptors;
 };
-
-pcl::PointCloud<PointI>::Ptr convertRGBToIntensity(
-    const pcl::PointCloud<PointRGB>::Ptr& cloud_rgb)
-{
-    auto cloud_i = pcl::PointCloud<PointI>::Ptr(new pcl::PointCloud<PointI>);
-
-    cloud_i->points.reserve(cloud_rgb->points.size());
-
-    for (const auto& p : cloud_rgb->points)
-    {
-        if (!pcl::isFinite(p)) continue;
-
-        PointI q;
-        q.x = p.x;
-        q.y = p.y;
-        q.z = p.z;
-
-        q.intensity = 0.299f * p.r + 0.587f * p.g + 0.114f * p.b;
-
-        cloud_i->points.push_back(q);
-    }
-
-    cloud_i->width = cloud_i->points.size();
-    cloud_i->height = 1;
-    cloud_i->is_dense = false;
-
-    return cloud_i;
-}
 
 pcl::PointCloud<PointXYZ>::Ptr convertRGBToXYZ(
     const pcl::PointCloud<PointRGB>::Ptr& cloud_rgb)
@@ -83,7 +55,6 @@ pcl::PointCloud<PointXYZ>::Ptr convertRGBToXYZ(
         q.x = p.x;
         q.y = p.y;
         q.z = p.z;
-
         cloud_xyz->points.push_back(q);
     }
 
@@ -92,30 +63,6 @@ pcl::PointCloud<PointXYZ>::Ptr convertRGBToXYZ(
     cloud_xyz->is_dense = false;
 
     return cloud_xyz;
-}
-
-pcl::PointCloud<PointXYZ>::Ptr convertSIFTToXYZ(
-    const pcl::PointCloud<SIFTPoint>::Ptr& keypoints_sift)
-{
-    auto keypoints_xyz = pcl::PointCloud<PointXYZ>::Ptr(new pcl::PointCloud<PointXYZ>);
-
-    keypoints_xyz->points.reserve(keypoints_sift->points.size());
-
-    for (const auto& p : keypoints_sift->points)
-    {
-        PointXYZ q;
-        q.x = p.x;
-        q.y = p.y;
-        q.z = p.z;
-
-        keypoints_xyz->points.push_back(q);
-    }
-
-    keypoints_xyz->width = keypoints_xyz->points.size();
-    keypoints_xyz->height = 1;
-    keypoints_xyz->is_dense = false;
-
-    return keypoints_xyz;
 }
 
 pcl::PointCloud<PointXYZ>::Ptr convertHARRISToXYZ(
@@ -131,7 +78,6 @@ pcl::PointCloud<PointXYZ>::Ptr convertHARRISToXYZ(
         q.x = p.x;
         q.y = p.y;
         q.z = p.z;
-
         keypoints_xyz->points.push_back(q);
     }
 
@@ -140,25 +86,6 @@ pcl::PointCloud<PointXYZ>::Ptr convertHARRISToXYZ(
     keypoints_xyz->is_dense = false;
 
     return keypoints_xyz;
-}
-
-pcl::PointCloud<SIFTPoint>::Ptr detectSIFTKeypoints(
-    const pcl::PointCloud<PointI>::Ptr& cloud_i)
-{
-    auto keypoints = pcl::PointCloud<SIFTPoint>::Ptr(new pcl::PointCloud<SIFTPoint>);
-
-    pcl::SIFTKeypoint<PointI, SIFTPoint> sift;
-    pcl::search::KdTree<PointI>::Ptr tree(new pcl::search::KdTree<PointI>());
-
-    sift.setSearchMethod(tree);
-    sift.setInputCloud(cloud_i);
-
-    sift.setScales(0.01f, 3, 2);
-    sift.setMinimumContrast(0.001f);
-
-    sift.compute(*keypoints);
-
-    return keypoints;
 }
 
 pcl::PointCloud<PointI>::Ptr detectHARRISKeypoints(
@@ -172,8 +99,6 @@ pcl::PointCloud<PointI>::Ptr detectHARRISKeypoints(
     harris.setInputCloud(cloud_xyz);
     harris.setSearchMethod(tree);
     harris.setNonMaxSupression(true);
-    //harris.setRadius(0.02f);
-    //harris.setThreshold(1e-6f);
     harris.setRadius(0.02f);
     harris.setThreshold(1e-6f);
     harris.setRefine(true);
@@ -193,33 +118,11 @@ pcl::PointCloud<pcl::Normal>::Ptr estimateNormals(
 
     ne.setInputCloud(cloud_xyz);
     ne.setSearchMethod(tree);
-    ne.setRadiusSearch(0.03);
+    ne.setRadiusSearch(0.05);
 
     ne.compute(*normals);
 
     return normals;
-}
-
-pcl::PointCloud<pcl::FPFHSignature33>::Ptr computeFPFH(
-    const pcl::PointCloud<PointXYZ>::Ptr& cloud_xyz,
-    const pcl::PointCloud<PointXYZ>::Ptr& keypoints_xyz,
-    const pcl::PointCloud<pcl::Normal>::Ptr& normals)
-{
-    auto descriptors = pcl::PointCloud<pcl::FPFHSignature33>::Ptr(
-        new pcl::PointCloud<pcl::FPFHSignature33>);
-
-    pcl::FPFHEstimation<PointXYZ, pcl::Normal, pcl::FPFHSignature33> fpfh;
-    pcl::search::KdTree<PointXYZ>::Ptr tree(new pcl::search::KdTree<PointXYZ>());
-
-    fpfh.setInputCloud(keypoints_xyz);
-    fpfh.setSearchSurface(cloud_xyz);
-    fpfh.setInputNormals(normals);
-    fpfh.setSearchMethod(tree);
-    fpfh.setRadiusSearch(0.05);
-
-    fpfh.compute(*descriptors);
-
-    return descriptors;
 }
 
 pcl::PointCloud<SHOTDesc>::Ptr computeSHOT(
@@ -243,52 +146,108 @@ pcl::PointCloud<SHOTDesc>::Ptr computeSHOT(
     return descriptors;
 }
 
-FeaturesResult extractFeaturesSIFT_FPFH(
+bool isValidSHOTDescriptor(const SHOTDesc& desc)
+{
+    for (int i = 0; i < 352; ++i)
+    {
+        if (!std::isfinite(desc.descriptor[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+FeaturesResultSHOT filterValidSHOTFeatures(const FeaturesResultSHOT& input)
+{
+    FeaturesResultSHOT output;
+    output.keypoints.reset(new pcl::PointCloud<PointXYZ>);
+    output.descriptors.reset(new pcl::PointCloud<SHOTDesc>);
+
+    std::size_t n = std::min(input.keypoints->size(), input.descriptors->size());
+
+    for (std::size_t i = 0; i < n; ++i)
+    {
+        if (isValidSHOTDescriptor(input.descriptors->points[i]))
+        {
+            output.keypoints->points.push_back(input.keypoints->points[i]);
+            output.descriptors->points.push_back(input.descriptors->points[i]);
+        }
+    }
+
+    output.keypoints->width = output.keypoints->points.size();
+    output.keypoints->height = 1;
+    output.keypoints->is_dense = false;
+
+    output.descriptors->width = output.descriptors->points.size();
+    output.descriptors->height = 1;
+    output.descriptors->is_dense = false;
+
+    return output;
+}
+
+FeaturesResultSHOT extractFeaturesHARRIS_SHOT(
     const pcl::PointCloud<PointRGB>::Ptr& cloud_rgb)
 {
-    FeaturesResult result;
+    FeaturesResultSHOT result;
 
-    auto cloud_i = convertRGBToIntensity(cloud_rgb);              // RGB -> intensidad
-    auto cloud_xyz = convertRGBToXYZ(cloud_rgb);                  // RGB -> XYZ
-
-    auto keypoints_sift = detectSIFTKeypoints(cloud_i);           // detector SIFT
-    auto keypoints_xyz = convertSIFTToXYZ(keypoints_sift);        // convertir a XYZ
-
-    auto normals = estimateNormals(cloud_xyz);                    // normales
-    auto descriptors = computeFPFH(cloud_xyz, keypoints_xyz, normals); // descriptor FPFH
+    auto cloud_xyz = convertRGBToXYZ(cloud_rgb);
+    auto keypoints_harris = detectHARRISKeypoints(cloud_xyz);
+    auto keypoints_xyz = convertHARRISToXYZ(keypoints_harris);
+    auto normals = estimateNormals(cloud_xyz);
+    auto descriptors = computeSHOT(cloud_xyz, keypoints_xyz, normals);
 
     result.keypoints = keypoints_xyz;
     result.descriptors = descriptors;
 
-    std::cout << "Puntos nube original: " << cloud_rgb->size() << std::endl;
-    std::cout << "Keypoints SIFT: " << result.keypoints->size() << std::endl;
-    std::cout << "Descriptores FPFH: " << result.descriptors->size() << std::endl;
+    std::cout << "Keypoints HARRIS brutos: " << result.keypoints->size() << std::endl;
+    std::cout << "Descriptores SHOT brutos: " << result.descriptors->size() << std::endl;
 
     return result;
 }
 
-FeaturesResult extractFeaturesHARRIS_SHOT(
-    const pcl::PointCloud<PointRGB>::Ptr& cloud_rgb)
+pcl::CorrespondencesPtr findCorrespondencesSHOT(
+    const pcl::PointCloud<SHOTDesc>::Ptr& prev,
+    const pcl::PointCloud<SHOTDesc>::Ptr& curr)
 {
-    FeaturesResult result;
+    pcl::CorrespondencesPtr corr(new pcl::Correspondences);
 
-    auto cloud_xyz = convertRGBToXYZ(cloud_rgb);                      // RGB -> XYZ
+    if (prev->empty() || curr->empty())
+        return corr;
 
-    auto keypoints_harris = detectHARRISKeypoints(cloud_xyz);         // detector Harris
-    auto keypoints_xyz = convertHARRISToXYZ(keypoints_harris);        // convertir a XYZ
+    pcl::registration::CorrespondenceEstimation<SHOTDesc, SHOTDesc> est;
+    est.setInputSource(prev);
+    est.setInputTarget(curr);
+    est.determineCorrespondences(*corr, std::numeric_limits<float>::max());
 
-    auto normals = estimateNormals(cloud_xyz);                        // normales
-    //auto descriptors = computeSHOT(cloud_xyz, keypoints_xyz, normals); // descriptor SHOT
-    auto descriptors = computeFPFH(cloud_xyz, keypoints_xyz, normals); // descriptor FPFH
+    return corr;
+}
 
-    result.keypoints = keypoints_xyz;
-    result.descriptors = descriptors;
+pcl::CorrespondencesPtr runRANSAC(
+    const pcl::PointCloud<PointXYZ>::Ptr& keypoints_prev,
+    const pcl::PointCloud<PointXYZ>::Ptr& keypoints_curr,
+    const pcl::CorrespondencesPtr& input_corr,
+    Eigen::Matrix4f& transformation)
+{
+    pcl::CorrespondencesPtr inliers(new pcl::Correspondences);
 
-    std::cout << "Puntos nube original: " << cloud_rgb->size() << std::endl;
-    std::cout << "Keypoints HARRIS: " << result.keypoints->size() << std::endl;
-    std::cout << "Descriptores FPFH: " << result.descriptors->size() << std::endl;
+    if (keypoints_prev->empty() || keypoints_curr->empty() || input_corr->empty())
+    {
+        transformation = Eigen::Matrix4f::Identity();
+        return inliers;
+    }
 
-    return result;
+    pcl::registration::CorrespondenceRejectorSampleConsensus<PointXYZ> ransac;
+    ransac.setInputSource(keypoints_prev);
+    ransac.setInputTarget(keypoints_curr);
+    ransac.setInputCorrespondences(input_corr);
+    ransac.setInlierThreshold(0.05);
+    ransac.setMaximumIterations(1000);
+    ransac.getCorrespondences(*inliers);
+
+    transformation = ransac.getBestTransformation();
+
+    return inliers;
 }
 
 class PclSubNode : public rclcpp::Node
@@ -305,11 +264,16 @@ public:
     }
 
 private:
+    FeaturesResultSHOT prev_features_;
+    bool has_prev_ = false;
+    std::size_t global_map_size_ = 0;
+    std::size_t counter_;
+
     void topic_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg)
     {
         counter_++;
 
-        if (counter_ % 30 != 0) return;  // procesar solo 1 de cada 30 nubes
+        if (counter_ % 30 != 0) return;
 
         pcl::PointCloud<PointRGB>::Ptr cloud(new pcl::PointCloud<PointRGB>);
         pcl::fromROSMsg(*msg, *cloud);
@@ -317,7 +281,6 @@ private:
         if (cloud->empty()) return;
 
         pcl::PointCloud<PointRGB>::Ptr filtered(new pcl::PointCloud<PointRGB>);
-
         pcl::VoxelGrid<PointRGB> vg;
         vg.setInputCloud(cloud);
         vg.setLeafSize(0.02f, 0.02f, 0.02f);
@@ -325,13 +288,52 @@ private:
 
         if (filtered->empty()) return;
 
-        FeaturesResult features_sift = extractFeaturesSIFT_FPFH(filtered);
-        FeaturesResult features_harris = extractFeaturesHARRIS_SHOT(filtered);
+        std::cout << "Puntos nube filtrada: " << filtered->size() << std::endl;
 
+        FeaturesResultSHOT raw_features = extractFeaturesHARRIS_SHOT(filtered);
+        FeaturesResultSHOT features = filterValidSHOTFeatures(raw_features);
+
+        std::cout << "Keypoints/descriptores validos: "
+                  << features.keypoints->size() << std::endl;
+
+        if (!has_prev_)
+        {
+            prev_features_ = features;
+            global_map_size_ = filtered->size();
+            has_prev_ = true;
+            return;
+        }
+
+        auto correspondences = findCorrespondencesSHOT(
+            prev_features_.descriptors,
+            features.descriptors);
+
+        RCLCPP_INFO(this->get_logger(),
+            "Correspondencias encontradas entre nubes: %zu",
+            correspondences->size());
+
+        Eigen::Matrix4f T = Eigen::Matrix4f::Identity();
+        auto inliers = runRANSAC(
+            prev_features_.keypoints,
+            features.keypoints,
+            correspondences,
+            T);
+
+        global_map_size_ += filtered->size();
+
+        RCLCPP_INFO(this->get_logger(),
+            "Original: %zu | Filtrada: %zu | Keypoints validos: %zu | Corr: %zu | Inliers: %zu | Mapa global: %zu",
+            cloud->size(),
+            filtered->size(),
+            features.keypoints->size(),
+            correspondences->size(),
+            inliers->size(),
+            global_map_size_);
+
+        prev_features_ = features;
     }
 
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr subscription_;
-    std::size_t counter_;
 };
 
 int main(int argc, char ** argv)
