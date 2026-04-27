@@ -1,0 +1,61 @@
+[0.000000] (-) TimerEvent: {}
+[0.001389] (-) JobUnselected: {'identifier': 'get_pointclouds'}
+[0.002157] (-) JobUnselected: {'identifier': 'turtlebot_gazebo_multiple'}
+[0.002255] (-) JobUnselected: {'identifier': 'turtlebot_gazebo_race'}
+[0.002340] (nav_genetic) JobQueued: {'identifier': 'nav_genetic', 'dependencies': OrderedDict()}
+[0.002408] (nav_genetic) JobStarted: {'identifier': 'nav_genetic'}
+[0.099000] (-) TimerEvent: {}
+[0.199554] (-) TimerEvent: {}
+[0.300001] (-) TimerEvent: {}
+[0.400446] (-) TimerEvent: {}
+[0.500898] (-) TimerEvent: {}
+[0.602298] (-) TimerEvent: {}
+[0.702725] (-) TimerEvent: {}
+[0.803175] (-) TimerEvent: {}
+[0.903744] (-) TimerEvent: {}
+[1.004372] (-) TimerEvent: {}
+[1.105035] (-) TimerEvent: {}
+[1.205788] (-) TimerEvent: {}
+[1.306355] (-) TimerEvent: {}
+[1.407026] (-) TimerEvent: {}
+[1.507867] (-) TimerEvent: {}
+[1.608543] (-) TimerEvent: {}
+[1.709072] (-) TimerEvent: {}
+[1.809773] (-) TimerEvent: {}
+[1.866110] (nav_genetic) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/marina/Escritorio/var/VAR2026/build/nav_genetic/build', '--no-deps', 'symlink_data'], 'cwd': '/home/marina/Escritorio/var/VAR2026/build/nav_genetic', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'USER': 'marina', 'XDG_SESSION_TYPE': 'wayland', 'CLUTTER_DISABLE_MIPMAPPED_TEXT': '1', 'SHLVL': '2', 'HOME': '/home/marina', 'DESKTOP_SESSION': 'ubuntu', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'SYSTEMD_EXEC_PID': '3332', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'GSM_SKIP_SSH_AGENT_WORKAROUND': 'true', 'COLORTERM': 'truecolor', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com', 'IM_CONFIG_PHASE': '1', 'WAYLAND_DISPLAY': 'wayland-0', 'OMF_PATH': '/home/marina/.local/share/omf', 'LOGNAME': 'marina', 'MEMORY_PRESSURE_WATCH': '/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'marina', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'PATH': '/home/marina/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/opt/maven/bin:/home/marina/.local/share/JetBrains/Toolbox/scripts', 'SESSION_MANAGER': 'local/marina-AERO-14-OLED-9MF:@/tmp/.ICE-unix/3280,unix/marina-AERO-14-OLED-9MF:/tmp/.ICE-unix/3280', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/2b21aae0_88ec_4726_a8c3_a3daf2ecdb5b', 'XDG_RUNTIME_DIR': '/run/user/1000', 'GNOME_SETUP_DISPLAY': ':1', 'XDG_MENU_PREFIX': 'gnome-', 'DISPLAY': ':0', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'LANG': 'es_ES.UTF-8', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XMODIFIERS': '@im=ibus', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:', 'XAUTHORITY': '/run/user/1000/.mutter-Xwaylandauth.SMA0N3', 'GNOME_TERMINAL_SERVICE': ':1.171', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'SHELL': '/bin/bash', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/marina/Escritorio/var/VAR2026/build/nav_genetic', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'OMF_CONFIG': '/home/marina/.config/omf', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'M2_HOME': '/opt/maven', 'COLCON': '1', 'MEMORY_PRESSURE_WRITE': 'c29tZSAyMDAwMDAgMjAwMDAwMAA=', 'VTE_VERSION': '7600', 'PYTHONPATH': '/home/marina/Escritorio/var/VAR2026/build/nav_genetic/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/python3.12/site-packages:'}, 'shell': False}
+[1.909907] (-) TimerEvent: {}
+[2.010395] (-) TimerEvent: {}
+[2.110811] (-) TimerEvent: {}
+[2.211351] (-) TimerEvent: {}
+[2.311732] (-) TimerEvent: {}
+[2.412176] (-) TimerEvent: {}
+[2.425811] (nav_genetic) StdoutLine: {'line': b'running develop\n'}
+[2.512325] (-) TimerEvent: {}
+[2.612761] (-) TimerEvent: {}
+[2.619470] (nav_genetic) StdoutLine: {'line': b'running egg_info\n'}
+[2.620094] (nav_genetic) StdoutLine: {'line': b'creating nav_genetic.egg-info\n'}
+[2.636609] (nav_genetic) StdoutLine: {'line': b'writing nav_genetic.egg-info/PKG-INFO\n'}
+[2.637190] (nav_genetic) StdoutLine: {'line': b'writing dependency_links to nav_genetic.egg-info/dependency_links.txt\n'}
+[2.637734] (nav_genetic) StdoutLine: {'line': b'writing entry points to nav_genetic.egg-info/entry_points.txt\n'}
+[2.638127] (nav_genetic) StdoutLine: {'line': b'writing requirements to nav_genetic.egg-info/requires.txt\n'}
+[2.638534] (nav_genetic) StdoutLine: {'line': b'writing top-level names to nav_genetic.egg-info/top_level.txt\n'}
+[2.638690] (nav_genetic) StdoutLine: {'line': b"writing manifest file 'nav_genetic.egg-info/SOURCES.txt'\n"}
+[2.673975] (nav_genetic) StdoutLine: {'line': b"reading manifest file 'nav_genetic.egg-info/SOURCES.txt'\n"}
+[2.674871] (nav_genetic) StdoutLine: {'line': b"writing manifest file 'nav_genetic.egg-info/SOURCES.txt'\n"}
+[2.696566] (nav_genetic) StdoutLine: {'line': b'running build_ext\n'}
+[2.697094] (nav_genetic) StdoutLine: {'line': b'Creating /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/python3.12/site-packages/nav-genetic.egg-link (link to .)\n'}
+[2.698609] (nav_genetic) StdoutLine: {'line': b'Installing ga_train script to /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/nav_genetic\n'}
+[2.698918] (nav_genetic) StdoutLine: {'line': b'Installing run_best script to /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/nav_genetic\n'}
+[2.699057] (nav_genetic) StdoutLine: {'line': b'Installing wall_follower script to /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/nav_genetic\n'}
+[2.699307] (nav_genetic) StdoutLine: {'line': b'\n'}
+[2.699775] (nav_genetic) StdoutLine: {'line': b'Installed /home/marina/Escritorio/var/VAR2026/build/nav_genetic\n'}
+[2.700138] (nav_genetic) StdoutLine: {'line': b'running symlink_data\n'}
+[2.700435] (nav_genetic) StdoutLine: {'line': b'creating /home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/ament_index\n'}
+[2.700695] (nav_genetic) StdoutLine: {'line': b'creating /home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/ament_index/resource_index\n'}
+[2.701139] (nav_genetic) StdoutLine: {'line': b'creating /home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/ament_index/resource_index/packages\n'}
+[2.701502] (nav_genetic) StdoutLine: {'line': b'symbolically linking /home/marina/Escritorio/var/VAR2026/build/nav_genetic/resource/nav_genetic -> /home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/ament_index/resource_index/packages\n'}
+[2.701717] (nav_genetic) StdoutLine: {'line': b'symbolically linking /home/marina/Escritorio/var/VAR2026/build/nav_genetic/package.xml -> /home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic\n'}
+[2.712925] (-) TimerEvent: {}
+[2.777387] (nav_genetic) CommandEnded: {'returncode': 0}
+[2.808613] (nav_genetic) JobEnded: {'identifier': 'nav_genetic', 'rc': 0}
+[2.810679] (-) EventReactorShutdown: {}

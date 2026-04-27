@@ -1,0 +1,4 @@
+[console_scripts]
+ga_train = nav_genetic.ga_train:main
+run_best = nav_genetic.run_best:main
+wall_follower = nav_genetic.controller:main

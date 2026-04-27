@@ -14,53 +14,41 @@
 #include <pcl/common/transforms.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/filter.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 
 #include <pcl/keypoints/harris_3d.h>
 
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/shot.h>
+#include <pcl/features/fpfh.h>
 
 #include <pcl/registration/correspondence_estimation.h>
 #include <pcl/registration/correspondence_rejection_sample_consensus.h>
+#include <pcl/registration/icp.h>
 #include <pcl/correspondence.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 
 #include <Eigen/Dense>
 
-// ============================================================
-// Tipos de datos que vamos a usar en PCL
-// ============================================================
-
-using PointRGB = pcl::PointXYZRGB;   // punto con coordenadas + color
-using PointI   = pcl::PointXYZI;     // punto con coordenadas + intensidad
-using PointXYZ = pcl::PointXYZ;      // punto solo geométrico
+using PointRGB = pcl::PointXYZRGB;   // punto coordenadas + color
+using PointI   = pcl::PointXYZI;     // punto coordenadas + intensidad
+using PointXYZ = pcl::PointXYZ;      // punto geométrico
 using SHOTDesc = pcl::SHOT352;       // descriptor SHOT
-
-// ============================================================
-// Estructura para guardar una nube ya procesada
-// ============================================================
-// Guardamos:
-// - la nube RGB filtrada
-// - la nube en XYZ
-// - los keypoints
-// - los descriptores de esos keypoints
-// ============================================================
+using FPFHDesc = pcl::FPFHSignature33; // descriptor FPFH
 
 struct FrameData
 {
     pcl::PointCloud<PointRGB>::Ptr cloud_rgb;
     pcl::PointCloud<PointXYZ>::Ptr cloud_xyz;
     pcl::PointCloud<PointXYZ>::Ptr keypoints;
-    pcl::PointCloud<SHOTDesc>::Ptr descriptors;
+    pcl::PointCloud<SHOTDesc>::Ptr shot_descriptors;
+    pcl::PointCloud<FPFHDesc>::Ptr fpfh_descriptors;
 };
 
-// ============================================================
-// Convierte una nube RGB a una nube XYZ
-// ============================================================
-// Muchos algoritmos de PCL no necesitan color, solo geometría.
-// Aquí copiamos x, y, z de cada punto válido.
-// ============================================================
+// Convierte nube RGB a nube XYZ
 
 pcl::PointCloud<PointXYZ>::Ptr convertRGBToXYZ(
     const pcl::PointCloud<PointRGB>::Ptr& cloud_rgb)
@@ -88,12 +76,7 @@ pcl::PointCloud<PointXYZ>::Ptr convertRGBToXYZ(
     return cloud_xyz;
 }
 
-// ============================================================
 // Convierte los keypoints Harris a nube XYZ
-// ============================================================
-// Harris3D devuelve puntos con tipo PointXYZI.
-// Para trabajar cómodamente con ellos luego, los pasamos a XYZ.
-// ============================================================
 
 pcl::PointCloud<PointXYZ>::Ptr convertHARRISToXYZ(
     const pcl::PointCloud<PointI>::Ptr& keypoints_harris)
@@ -119,11 +102,7 @@ pcl::PointCloud<PointXYZ>::Ptr convertHARRISToXYZ(
     return keypoints_xyz;
 }
 
-// ============================================================
-// Detección de keypoints con Harris 3D
-// ============================================================
-// Busca puntos geométricamente interesantes dentro de la nube.
-// ============================================================
+// Busca puntos interesantes dentro de la nube
 
 pcl::PointCloud<PointI>::Ptr detectHARRISKeypoints(
     const pcl::PointCloud<PointXYZ>::Ptr& cloud_xyz)
@@ -136,16 +115,16 @@ pcl::PointCloud<PointI>::Ptr detectHARRISKeypoints(
     harris.setInputCloud(cloud_xyz);
     harris.setSearchMethod(tree);
 
-    // Evita keypoints repetidos muy cercanos entre sí
+    // Evita keypoints muy cercanos entre sí
     harris.setNonMaxSupression(true);
 
-    // Radio del vecindario para detectar esquinas/salientes 3D
-    harris.setRadius(0.02f);
+    // Radio del vecindario para detectar salientes
+    harris.setRadius(0.08f);
 
     // Umbral de respuesta del detector
-    harris.setThreshold(1e-6f);
+    harris.setThreshold(1e-7f);
 
-    // Mejora ligeramente la posición del keypoint
+    // Mejora la posición del keypoint
     harris.setRefine(true);
 
     harris.compute(*keypoints);
@@ -153,12 +132,7 @@ pcl::PointCloud<PointI>::Ptr detectHARRISKeypoints(
     return keypoints;
 }
 
-// ============================================================
 // Estimación de normales
-// ============================================================
-// SHOT necesita conocer la orientación local de la superficie.
-// Para ello calculamos una normal en cada punto.
-// ============================================================
 
 pcl::PointCloud<pcl::Normal>::Ptr estimateNormals(
     const pcl::PointCloud<PointXYZ>::Ptr& cloud_xyz)
@@ -172,19 +146,14 @@ pcl::PointCloud<pcl::Normal>::Ptr estimateNormals(
     ne.setSearchMethod(tree);
 
     // Radio usado para calcular la normal local
-    ne.setRadiusSearch(0.03);
+    ne.setRadiusSearch(0.08);
 
     ne.compute(*normals);
 
     return normals;
 }
 
-// ============================================================
-// Cálculo de descriptores SHOT
-// ============================================================
-// Se calculan solo sobre los keypoints.
-// La nube completa sirve como superficie de contexto.
-// ============================================================
+// ---- SHOT ----
 
 pcl::PointCloud<SHOTDesc>::Ptr computeSHOT(
     const pcl::PointCloud<PointXYZ>::Ptr& cloud_xyz,
@@ -202,24 +171,14 @@ pcl::PointCloud<SHOTDesc>::Ptr computeSHOT(
     shot.setSearchMethod(tree);
 
     // Radio del entorno usado por SHOT
-    shot.setRadiusSearch(0.05);
+    shot.setRadiusSearch(0.18);
 
     shot.compute(*descriptors);
 
     return descriptors;
 }
 
-// ============================================================
-// Filtrado de descriptores SHOT inválidos
-// ============================================================
-// Problema:
-// algunos descriptores SHOT pueden contener NaN o Inf si la
-// referencia local no se puede calcular correctamente.
-//
-// Solución:
-// eliminar esos descriptores Y también eliminar el keypoint
-// correspondiente, para que ambos sigan alineados por índice.
-// ============================================================
+// Filtrado de descriptores SHOT inválidos (NaN)
 
 void removeInvalidSHOTDescriptors(
     const pcl::PointCloud<PointXYZ>::Ptr& input_keypoints,
@@ -235,7 +194,6 @@ void removeInvalidSHOTDescriptors(
         const auto& desc = input_descriptors->points[i];
         bool valid = true;
 
-        // SHOT352 tiene 352 componentes
         for (int j = 0; j < 352; ++j)
         {
             if (!std::isfinite(desc.descriptor[j]))
@@ -261,55 +219,6 @@ void removeInvalidSHOTDescriptors(
     filtered_descriptors->is_dense = false;
 }
 
-// ============================================================
-// Procesado completo de una nube: HARRIS + SHOT
-// ============================================================
-// Este es el paso 1 del enunciado:
-// - detectar características
-// - describirlas
-// ============================================================
-
-FrameData processFrameHARRIS_SHOT(const pcl::PointCloud<PointRGB>::Ptr& cloud_rgb)
-{
-    FrameData frame;
-
-    frame.cloud_rgb = cloud_rgb;
-    frame.cloud_xyz = convertRGBToXYZ(cloud_rgb);
-
-    // 1) Detectar keypoints Harris
-    auto keypoints_harris = detectHARRISKeypoints(frame.cloud_xyz);
-    auto raw_keypoints = convertHARRISToXYZ(keypoints_harris);
-
-    // 2) Calcular normales de la nube
-    auto normals = estimateNormals(frame.cloud_xyz);
-
-    // 3) Calcular descriptores SHOT sobre los keypoints
-    auto raw_descriptors = computeSHOT(frame.cloud_xyz, raw_keypoints, normals);
-
-    // 4) Eliminar descriptores no válidos y sus keypoints asociados
-    removeInvalidSHOTDescriptors(
-        raw_keypoints,
-        raw_descriptors,
-        frame.keypoints,
-        frame.descriptors);
-
-    std::cout << "Puntos nube filtrada: " << frame.cloud_rgb->size() << std::endl;
-    std::cout << "Keypoints HARRIS brutos: " << raw_keypoints->size() << std::endl;
-    std::cout << "Descriptores SHOT brutos: " << raw_descriptors->size() << std::endl;
-    std::cout << "Keypoints/descriptores validos: " << frame.keypoints->size() << std::endl;
-
-    return frame;
-}
-
-// ============================================================
-// Búsqueda de correspondencias entre dos conjuntos de descriptores
-// ============================================================
-// source = nube actual
-// target = nube anterior
-//
-// Se usan correspondencias recíprocas para reducir emparejamientos malos.
-// ============================================================
-
 pcl::CorrespondencesPtr findCorrespondencesSHOT(
     const pcl::PointCloud<SHOTDesc>::Ptr& source_desc,
     const pcl::PointCloud<SHOTDesc>::Ptr& target_desc)
@@ -325,13 +234,150 @@ pcl::CorrespondencesPtr findCorrespondencesSHOT(
     return correspondences;
 }
 
-// ============================================================
-// Estimación de transformación con RANSAC
-// ============================================================
-// Paso 3 del enunciado:
-// a partir de las correspondencias, RANSAC elimina emparejamientos
-// erróneos y calcula la mejor transformación rígida.
-// ============================================================
+// ---- FPFH ----
+
+pcl::PointCloud<FPFHDesc>::Ptr computeFPFH(
+    const pcl::PointCloud<PointXYZ>::Ptr& cloud_xyz,
+    const pcl::PointCloud<PointXYZ>::Ptr& keypoints_xyz,
+    const pcl::PointCloud<pcl::Normal>::Ptr& normals)
+{
+    auto descriptors = pcl::PointCloud<FPFHDesc>::Ptr(new pcl::PointCloud<FPFHDesc>);
+
+    pcl::FPFHEstimation<PointXYZ, pcl::Normal, FPFHDesc> fpfh;
+    pcl::search::KdTree<PointXYZ>::Ptr tree(new pcl::search::KdTree<PointXYZ>());
+
+    fpfh.setInputCloud(keypoints_xyz);
+    fpfh.setSearchSurface(cloud_xyz);
+    fpfh.setInputNormals(normals);
+    fpfh.setSearchMethod(tree);
+
+    // Radio del entorno usado por FPFH
+    fpfh.setRadiusSearch(0.18);
+
+    fpfh.compute(*descriptors);
+
+    return descriptors;
+}
+
+// Filtrado de descriptores FPFH inválidos (NaN)
+
+void removeInvalidFPFHDescriptors(
+    const pcl::PointCloud<PointXYZ>::Ptr& input_keypoints,
+    const pcl::PointCloud<FPFHDesc>::Ptr& input_descriptors,
+    pcl::PointCloud<PointXYZ>::Ptr& filtered_keypoints,
+    pcl::PointCloud<FPFHDesc>::Ptr& filtered_descriptors)
+{
+    filtered_keypoints.reset(new pcl::PointCloud<PointXYZ>);
+    filtered_descriptors.reset(new pcl::PointCloud<FPFHDesc>);
+
+    for (std::size_t i = 0; i < input_descriptors->size(); ++i)
+    {
+        const auto& desc = input_descriptors->points[i];
+        bool valid = true;
+
+        for (int j = 0; j < 33; ++j)
+        {
+            if (!std::isfinite(desc.histogram[j]))
+            {
+                valid = false;
+                break;
+            }
+        }
+
+        if (valid)
+        {
+            filtered_keypoints->points.push_back(input_keypoints->points[i]);
+            filtered_descriptors->points.push_back(desc);
+        }
+    }
+
+    filtered_keypoints->width = filtered_keypoints->points.size();
+    filtered_keypoints->height = 1;
+    filtered_keypoints->is_dense = false;
+
+    filtered_descriptors->width = filtered_descriptors->points.size();
+    filtered_descriptors->height = 1;
+    filtered_descriptors->is_dense = false;
+}
+
+pcl::CorrespondencesPtr findCorrespondencesFPFH(
+    const pcl::PointCloud<FPFHDesc>::Ptr& source_desc,
+    const pcl::PointCloud<FPFHDesc>::Ptr& target_desc)
+{
+    auto correspondences = pcl::CorrespondencesPtr(new pcl::Correspondences);
+
+    pcl::registration::CorrespondenceEstimation<FPFHDesc, FPFHDesc> est;
+    est.setInputSource(source_desc);
+    est.setInputTarget(target_desc);
+
+    est.determineReciprocalCorrespondences(*correspondences);
+
+    return correspondences;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Procesado de una nube: HARRIS + SHOT
+
+FrameData processFrameHARRIS_SHOT(const pcl::PointCloud<PointRGB>::Ptr& cloud_rgb)
+{
+    FrameData frame;
+
+    frame.cloud_rgb = cloud_rgb;
+    frame.cloud_xyz = convertRGBToXYZ(cloud_rgb);
+
+    auto keypoints_harris = detectHARRISKeypoints(frame.cloud_xyz);
+    auto raw_keypoints = convertHARRISToXYZ(keypoints_harris);
+
+    auto normals = estimateNormals(frame.cloud_xyz);
+
+    auto raw_descriptors = computeSHOT(frame.cloud_xyz, raw_keypoints, normals);
+
+    removeInvalidSHOTDescriptors(
+        raw_keypoints,
+        raw_descriptors,
+        frame.keypoints,
+        frame.shot_descriptors);
+
+    std::cout << "Puntos nube filtrada: " << frame.cloud_rgb->size() << std::endl;
+    std::cout << "Keypoints HARRIS brutos: " << raw_keypoints->size() << std::endl;
+    std::cout << "Descriptores SHOT brutos: " << raw_descriptors->size() << std::endl;
+    std::cout << "Keypoints/descriptores validos: " << frame.keypoints->size() << std::endl;
+
+    return frame;
+}
+
+// Procesado de una nube: HARRIS + FPFH
+
+FrameData processFrameHARRIS_FPFH(const pcl::PointCloud<PointRGB>::Ptr& cloud_rgb)
+{
+    FrameData frame;
+
+    frame.cloud_rgb = cloud_rgb;
+    frame.cloud_xyz = convertRGBToXYZ(cloud_rgb);
+
+    auto keypoints_harris = detectHARRISKeypoints(frame.cloud_xyz);
+    auto raw_keypoints = convertHARRISToXYZ(keypoints_harris);
+
+    auto normals = estimateNormals(frame.cloud_xyz);
+
+    auto raw_descriptors = computeFPFH(frame.cloud_xyz, raw_keypoints, normals);
+
+    removeInvalidFPFHDescriptors(
+        raw_keypoints,
+        raw_descriptors,
+        frame.keypoints,
+        frame.fpfh_descriptors);
+
+    std::cout << "Puntos nube filtrada: " << frame.cloud_rgb->size() << std::endl;
+    std::cout << "Keypoints HARRIS brutos: " << raw_keypoints->size() << std::endl;
+    std::cout << "Descriptores FPFH brutos: " << raw_descriptors->size() << std::endl;
+    std::cout << "Keypoints/descriptores validos: " << frame.keypoints->size() << std::endl;
+
+    return frame;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Transformación con RANSAC
 
 bool estimateTransformationRANSAC(
     const pcl::PointCloud<PointXYZ>::Ptr& source_keypoints,
@@ -347,10 +393,10 @@ bool estimateTransformationRANSAC(
     ransac.setInputCorrespondences(correspondences);
 
     // Distancia máxima para considerar una correspondencia correcta
-    ransac.setInlierThreshold(0.05);
+    ransac.setInlierThreshold(0.03);
 
     // Máximo número de iteraciones
-    ransac.setMaximumIterations(1000);
+    ransac.setMaximumIterations(10000);
 
     // Obtener inliers tras RANSAC
     ransac.getCorrespondences(inliers);
@@ -365,15 +411,52 @@ bool estimateTransformationRANSAC(
     return true;
 }
 
-// ============================================================
+// ICP refina alineación de RANSAC
+
+bool refineWithICP(
+    const pcl::PointCloud<PointXYZ>::Ptr& source,
+    const pcl::PointCloud<PointXYZ>::Ptr& target,
+    const Eigen::Matrix4f& initial_guess,
+    Eigen::Matrix4f& refined_transform)
+{
+    pcl::IterativeClosestPoint<PointXYZ, PointXYZ> icp;
+
+    icp.setInputSource(source);
+    icp.setInputTarget(target);
+
+    // Distancia máxima entre puntos correspondientes
+    icp.setMaxCorrespondenceDistance(0.15);
+
+    // Criterios de convergencia
+    icp.setMaximumIterations(80);
+    icp.setTransformationEpsilon(1e-8);
+    icp.setEuclideanFitnessEpsilon(1e-6);
+
+    pcl::PointCloud<PointXYZ> aligned;
+    icp.align(aligned, initial_guess);
+
+    if (icp.hasConverged() && icp.getFitnessScore() < 0.1)
+    {
+        refined_transform = icp.getFinalTransformation();
+        return true;
+    }
+
+    // Si ICP no converge bien, usamos la transformación original de RANSAC
+    refined_transform = initial_guess;
+    return false;
+}
+
 // Nodo ROS2
-// ============================================================
 
 class PclSubNode : public rclcpp::Node
 {
 public:
     PclSubNode() : Node("get_pointclouds_node"), counter_(0)
     {
+        // Parámetro para seleccionar pipeline: HARRIS_SHOT o HARRIS_FPFH
+        this->declare_parameter<std::string>("pipeline", "HARRIS_SHOT");
+        pipeline_ = this->get_parameter("pipeline").as_string();
+
         // Suscripción a la nube de la cámara
         subscription_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
             "/camera/depth/points",
@@ -384,22 +467,36 @@ public:
         publisher_map_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(
             "/global_map", 10);
 
+        // Timer para republicar el mapa cada 2 segundos
+        map_timer_ = this->create_wall_timer(
+            std::chrono::seconds(2),
+            std::bind(&PclSubNode::publish_map, this));
+
         RCLCPP_INFO(this->get_logger(), "Nodo de registro de nubes iniciado");
-        RCLCPP_INFO(this->get_logger(), "Pipeline activo: HARRIS + SHOT + Correspondencias + RANSAC + Mapa global");
+        RCLCPP_INFO(this->get_logger(), "Pipeline activo: %s + Correspondencias + RANSAC + ICP + Mapa global",
+            pipeline_.c_str());
     }
 
 private:
+    void publish_map()
+    {
+        if (global_map_->empty()) return;
+
+        sensor_msgs::msg::PointCloud2 map_msg;
+        pcl::toROSMsg(*global_map_, map_msg);
+        map_msg.header.stamp = this->now();
+        map_msg.header.frame_id = "odom";
+        publisher_map_->publish(map_msg);
+    }
+
     void topic_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg)
     {
-        // ========================================================
-        // 1. Procesar solo una de cada N nubes
-        // ========================================================
+        // Procesar solo una de cada N nubes
         counter_++;
-        if (counter_ % 30 != 0) return;
+        if (counter_ % 5 != 0) return;
 
-        // ========================================================
-        // 2. Convertir mensaje ROS a nube PCL
-        // ========================================================
+        // Convertir mensaje ROS a nube PCL
+
         pcl::PointCloud<PointRGB>::Ptr cloud(new pcl::PointCloud<PointRGB>);
         pcl::fromROSMsg(*msg, *cloud);
 
@@ -409,17 +506,47 @@ private:
             return;
         }
 
-        // ========================================================
-        // 3. Filtrado inicial con VoxelGrid
-        // ========================================================
-        // Reduce el número de puntos para acelerar el procesamiento.
-        // ========================================================
+        // Filtrado inicial con VoxelGrid
+
         pcl::PointCloud<PointRGB>::Ptr filtered(new pcl::PointCloud<PointRGB>);
 
         pcl::VoxelGrid<PointRGB> vg;
         vg.setInputCloud(cloud);
-        vg.setLeafSize(0.02f, 0.02f, 0.02f);  // 2 cm
+        vg.setLeafSize(0.02f, 0.02f, 0.02f);
         vg.filter(*filtered);
+
+        // Eliminar puntos fuera del rango útil del Kinect
+
+        pcl::PointCloud<PointRGB>::Ptr cropped(new pcl::PointCloud<PointRGB>);
+
+        pcl::PassThrough<PointRGB> pass_z;
+        pass_z.setInputCloud(filtered);
+        pass_z.setFilterFieldName("z");
+        pass_z.setFilterLimits(0.4f, 3.0f);
+        pass_z.filter(*cropped);
+
+        pcl::PointCloud<PointRGB>::Ptr cropped_x(new pcl::PointCloud<PointRGB>);
+        pcl::PassThrough<PointRGB> pass_x;
+        pass_x.setInputCloud(cropped);
+        pass_x.setFilterFieldName("x");
+        pass_x.setFilterLimits(-2.5f, 2.5f);
+        pass_x.filter(*cropped_x);
+
+        pcl::PointCloud<PointRGB>::Ptr cropped_xy(new pcl::PointCloud<PointRGB>);
+        pcl::PassThrough<PointRGB> pass_y;
+        pass_y.setInputCloud(cropped_x);
+        pass_y.setFilterFieldName("y");
+        pass_y.setFilterLimits(-2.5f, 2.5f);
+        pass_y.filter(*cropped_xy);
+
+        // Eliminar outliers estadísticos
+        pcl::PointCloud<PointRGB>::Ptr inlier_cloud(new pcl::PointCloud<PointRGB>);
+        pcl::StatisticalOutlierRemoval<PointRGB> sor;
+        sor.setInputCloud(cropped_xy);
+        sor.setMeanK(30);
+        sor.setStddevMulThresh(0.3);
+        sor.filter(*inlier_cloud);
+        filtered = inlier_cloud;
 
         if (filtered->empty())
         {
@@ -427,159 +554,182 @@ private:
             return;
         }
 
-        // ========================================================
-        // 4. Extraer keypoints + descriptores
-        // ========================================================
-        FrameData current_frame = processFrameHARRIS_SHOT(filtered);
+        // Rotar de frame óptico (z-adelante, y-abajo) a frame suelo (x-adelante, z-arriba)
+        // x_suelo = z_cam, y_suelo = -x_cam, z_suelo = -y_cam
+        // Altura de la cámara del turtlebot waffle ~0.19m
+        Eigen::Matrix4f camera_to_ground = Eigen::Matrix4f::Identity();
+        camera_to_ground <<  0,  0,  1,  0,
+                            -1,  0,  0,  0,
+                             0, -1,  0,  0.19f,
+                             0,  0,  0,  1;
 
-        if (current_frame.keypoints->empty() || current_frame.descriptors->empty())
+        pcl::PointCloud<PointRGB>::Ptr ground_cloud(new pcl::PointCloud<PointRGB>);
+        pcl::transformPointCloud(*filtered, *ground_cloud, camera_to_ground);
+        filtered = ground_cloud;
+
+        // Pipeline de registro según parámetro
+
+        FrameData current_frame;
+
+        if (pipeline_ == "HARRIS_FPFH")
         {
-            RCLCPP_WARN(this->get_logger(), "No hay suficientes caracteristicas validas");
-            return;
+            current_frame = processFrameHARRIS_FPFH(filtered);
+        }
+        else
+        {
+            current_frame = processFrameHARRIS_SHOT(filtered);
         }
 
-        // ========================================================
-        // 5. Caso especial: primera nube
-        // ========================================================
-        // La primera nube inicializa el mapa y el sistema global.
-        // ========================================================
+        std::size_t n_kp = current_frame.keypoints ? current_frame.keypoints->size() : 0;
+        std::size_t n_corr = 0;
+        std::size_t n_inliers = 0;
+
         if (!has_previous_frame_)
         {
-            *global_map_ = *filtered;
-            previous_frame_ = current_frame;
+            // Primera nube: añadir directamente al mapa
+            pcl::PointCloud<PointRGB>::Ptr clean_cloud(new pcl::PointCloud<PointRGB>);
+            std::vector<int> indices;
+            pcl::removeNaNFromPointCloud(*filtered, *clean_cloud, indices);
+            *global_map_ += *clean_cloud;
+            global_map_xyz_ = convertRGBToXYZ(global_map_);
+
             has_previous_frame_ = true;
-            global_transform_ = Eigen::Matrix4f::Identity();
-
-            sensor_msgs::msg::PointCloud2 map_msg;
-            pcl::toROSMsg(*global_map_, map_msg);
-            map_msg.header = msg->header;
-            publisher_map_->publish(map_msg);
-
-            RCLCPP_INFO(this->get_logger(), "Mapa inicializado con la primera nube");
-            return;
-        }
-
-        // ========================================================
-        // 6. Comprobar que hay suficientes descriptores válidos
-        // ========================================================
-        if (current_frame.descriptors->size() < 5 || previous_frame_.descriptors->size() < 5)
-        {
-            RCLCPP_WARN(
-                this->get_logger(),
-                "Muy pocos descriptores validos: actual=%zu anterior=%zu",
-                current_frame.descriptors->size(),
-                previous_frame_.descriptors->size());
-
             previous_frame_ = current_frame;
+
+            RCLCPP_INFO(this->get_logger(),
+                "Primera nube añadida | Puntos: %zu", clean_cloud->size());
             return;
         }
 
-        // ========================================================
-        // 7. Buscar correspondencias entre nube actual y anterior
-        // ========================================================
-        auto correspondences = findCorrespondencesSHOT(
-            current_frame.descriptors,
-            previous_frame_.descriptors);
+        // Buscar correspondencias según pipeline
+        pcl::CorrespondencesPtr correspondences;
+        bool has_enough_descriptors = false;
 
-        RCLCPP_INFO( //Sacar por pantalla el número se correspondencias encontradas entre 2 nubes
-            this->get_logger(),
-            "Correspondencias encontradas entre nubes: %zu",
-            correspondences->size());
-
-        if (correspondences->size() < 10)
+        if (pipeline_ == "HARRIS_FPFH")
         {
-            RCLCPP_WARN(
-                this->get_logger(),
-                "Muy pocas correspondencias: %zu. Se actualiza referencia y se sigue.",
-                correspondences->size());
+            has_enough_descriptors =
+                current_frame.fpfh_descriptors && current_frame.fpfh_descriptors->size() >= 5 &&
+                previous_frame_.fpfh_descriptors && previous_frame_.fpfh_descriptors->size() >= 5;
 
-            previous_frame_ = current_frame;
-            return;
+            if (has_enough_descriptors)
+            {
+                correspondences = findCorrespondencesFPFH(
+                    current_frame.fpfh_descriptors,
+                    previous_frame_.fpfh_descriptors);
+            }
         }
-
-        // ========================================================
-        // 8. Usar RANSAC para eliminar malas correspondencias
-        //    y calcular la transformación relativa
-        // ========================================================
-        Eigen::Matrix4f relative_transform;
-        pcl::Correspondences inliers;
-
-        bool ok = estimateTransformationRANSAC(
-            current_frame.keypoints,
-            previous_frame_.keypoints,
-            correspondences,
-            relative_transform,
-            inliers);
-
-        if (!ok)
+        else
         {
-            RCLCPP_WARN(this->get_logger(), "RANSAC no ha encontrado una transformacion valida");
-            previous_frame_ = current_frame;
-            return;
+            has_enough_descriptors =
+                current_frame.shot_descriptors && current_frame.shot_descriptors->size() >= 5 &&
+                previous_frame_.shot_descriptors && previous_frame_.shot_descriptors->size() >= 5;
+
+            if (has_enough_descriptors)
+            {
+                correspondences = findCorrespondencesSHOT(
+                    current_frame.shot_descriptors,
+                    previous_frame_.shot_descriptors);
+            }
         }
 
-        // ========================================================
-        // 9. Acumular transformación global
-        // ========================================================
-        // Cada nube nueva se lleva al sistema de la primera nube.
-        // ========================================================
-        global_transform_ = global_transform_ * relative_transform;
+        if (has_enough_descriptors)
+        {
+            n_corr = correspondences->size();
 
-        // ========================================================
-        // 10. Transformar la nube actual al sistema global
-        // ========================================================
-        pcl::PointCloud<PointRGB>::Ptr transformed_cloud(new pcl::PointCloud<PointRGB>);
-        pcl::transformPointCloud(*filtered, *transformed_cloud, global_transform_);
+            if (correspondences->size() >= 5)
+            {
+                Eigen::Matrix4f relative_transform;
+                pcl::Correspondences inliers;
 
-        // ========================================================
-        // 11. Añadir nube transformada al mapa global
-        // ========================================================
-        *global_map_ += *transformed_cloud;
+                bool ok = estimateTransformationRANSAC(
+                    current_frame.keypoints,
+                    previous_frame_.keypoints,
+                    correspondences,
+                    relative_transform,
+                    inliers);
 
-        // ========================================================
-        // 12. Reducir el mapa global con VoxelGrid
-        // ========================================================
-        // Esto evita que el mapa crezca demasiado en número de puntos.
-        // ========================================================
-        pcl::PointCloud<PointRGB>::Ptr reduced_map(new pcl::PointCloud<PointRGB>);
+                n_inliers = inliers.size();
 
-        pcl::VoxelGrid<PointRGB> vg_map;
-        vg_map.setInputCloud(global_map_);
-        vg_map.setLeafSize(0.03f, 0.03f, 0.03f);  // 3 cm
-        vg_map.filter(*reduced_map);
+                if (ok)
+                {
+                    // Estimación inicial: acumular RANSAC relativo
+                    Eigen::Matrix4f initial_global = global_transform_ * relative_transform;
 
-        global_map_ = reduced_map;
+                    // Refinar contra el mapa global con ICP (reduce drift)
+                    Eigen::Matrix4f refined_global;
+                    bool icp_ok = refineWithICP(
+                        current_frame.cloud_xyz,
+                        global_map_xyz_,
+                        initial_global,
+                        refined_global);
 
-        // ========================================================
-        // 13. Publicar mapa global para verlo en RViz
-        // ========================================================
-        sensor_msgs::msg::PointCloud2 map_msg;
-        pcl::toROSMsg(*global_map_, map_msg);
-        map_msg.header = msg->header;
-        publisher_map_->publish(map_msg);
+                    if (icp_ok)
+                    {
+                        global_transform_ = refined_global;
+                    }
+                    else
+                    {
+                        global_transform_ = initial_global;
+                    }
 
-        // ========================================================
-        // 14. Mostrar información de depuración
-        // ========================================================
-        RCLCPP_INFO(
-            this->get_logger(),
-            "Original: %zu | Filtrada: %zu | Keypoints validos: %zu | Corr: %zu | Inliers: %zu | Mapa global: %zu",
-            cloud->size(),
-            filtered->size(),
-            current_frame.keypoints->size(),
-            correspondences->size(),
-            inliers.size(),
-            global_map_->size());
+                    // Transformar nube actual al frame global y añadir al mapa
+                    pcl::PointCloud<PointRGB>::Ptr transformed_cloud(new pcl::PointCloud<PointRGB>);
+                    pcl::transformPointCloud(*filtered, *transformed_cloud, global_transform_);
 
-        // ========================================================
-        // 15. La nube actual pasa a ser la anterior
-        // ========================================================
+                    pcl::PointCloud<PointRGB>::Ptr clean_cloud(new pcl::PointCloud<PointRGB>);
+                    std::vector<int> indices;
+                    pcl::removeNaNFromPointCloud(*transformed_cloud, *clean_cloud, indices);
+
+                    *global_map_ += *clean_cloud;
+
+                    // Reducir mapa con VoxelGrid
+                    pcl::PointCloud<PointRGB>::Ptr reduced_map(new pcl::PointCloud<PointRGB>);
+                    pcl::VoxelGrid<PointRGB> vg_map;
+                    vg_map.setInputCloud(global_map_);
+                    vg_map.setLeafSize(0.02f, 0.02f, 0.02f);
+                    vg_map.filter(*reduced_map);
+                    global_map_ = reduced_map;
+
+                    // Actualizar mapa XYZ para ICP
+                    global_map_xyz_ = convertRGBToXYZ(global_map_);
+
+                    RCLCPP_INFO(this->get_logger(),
+                        "Registro [%s]: Kp=%zu | Corr=%zu | Inliers=%zu | ICP=%s",
+                        pipeline_.c_str(), n_kp, n_corr, n_inliers,
+                        icp_ok ? "OK" : "fallback");
+                }
+                else
+                {
+                    RCLCPP_WARN(this->get_logger(),
+                        "RANSAC fallido: Kp=%zu | Corr=%zu | Inliers=%zu",
+                        n_kp, n_corr, n_inliers);
+                }
+            }
+            else
+            {
+                RCLCPP_WARN(this->get_logger(),
+                    "Pocas correspondencias: %zu", n_corr);
+            }
+        }
+        else
+        {
+            RCLCPP_WARN(this->get_logger(),
+                "Pocos descriptores para registro");
+        }
+
         previous_frame_ = current_frame;
+
+        RCLCPP_INFO(this->get_logger(),
+            "Mapa: %zu puntos", global_map_->size());
     }
 
     // ROS
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr subscription_;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr publisher_map_;
+    rclcpp::TimerBase::SharedPtr map_timer_;
+
+    // Pipeline seleccionado
+    std::string pipeline_;
 
     // Procesar solo 1 de cada N nubes
     std::size_t counter_;
@@ -588,16 +738,13 @@ private:
     FrameData previous_frame_;
     bool has_previous_frame_ = false;
 
+    // Transformación acumulada (registro sin TF)
+    Eigen::Matrix4f global_transform_ = Eigen::Matrix4f::Identity();
+
     // Mapa global acumulado
     pcl::PointCloud<PointRGB>::Ptr global_map_{new pcl::PointCloud<PointRGB>};
-
-    // Transformación global acumulada
-    Eigen::Matrix4f global_transform_ = Eigen::Matrix4f::Identity();
+    pcl::PointCloud<PointXYZ>::Ptr global_map_xyz_{new pcl::PointCloud<PointXYZ>};
 };
-
-// ============================================================
-// main
-// ============================================================
 
 int main(int argc, char ** argv)
 {

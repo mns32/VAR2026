@@ -1,0 +1,16 @@
+package.xml
+setup.cfg
+setup.py
+nav_genetic/__init__.py
+nav_genetic/controller.py
+nav_genetic/ga_train.py
+nav_genetic/monitor.py
+nav_genetic/run_best.py
+nav_genetic.egg-info/PKG-INFO
+nav_genetic.egg-info/SOURCES.txt
+nav_genetic.egg-info/dependency_links.txt
+nav_genetic.egg-info/entry_points.txt
+nav_genetic.egg-info/requires.txt
+nav_genetic.egg-info/top_level.txt
+nav_genetic.egg-info/zip-safe
+resource/nav_genetic
