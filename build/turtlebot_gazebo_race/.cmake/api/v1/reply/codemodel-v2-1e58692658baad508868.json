@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-22cf32d8baeb57328a3b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "turtlebot_gazebo_race",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "depth_camera_info_publisher::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-depth_camera_info_publisher-704a3ad290dd33a04c33.json",
+					"name" : "depth_camera_info_publisher",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "robot_description_topic_publisher::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-robot_description_topic_publisher-8204fe6465f2b30bf93d.json",
+					"name" : "robot_description_topic_publisher",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "turtlebot_gazebo_race_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-turtlebot_gazebo_race_uninstall-6c69e0d3f48ba9697c94.json",
+					"name" : "turtlebot_gazebo_race_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-b2dba03ca1c1a00ea23d.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race",
+		"source" : "/home/marina/Escritorio/var/VAR2026/ros2_ws/turtlebot_gazebo_race"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

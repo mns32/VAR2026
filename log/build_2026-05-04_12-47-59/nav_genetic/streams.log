@@ -1,0 +1,19 @@
+[1.362s] Invoking command in '/home/marina/Escritorio/var/VAR2026/build/nav_genetic': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/marina/Escritorio/var/VAR2026/build/nav_genetic/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/marina/Escritorio/var/VAR2026/build/nav_genetic/build --no-deps symlink_data
+[1.772s] running develop
+[2.019s] running egg_info
+[2.042s] writing nav_genetic.egg-info/PKG-INFO
+[2.042s] writing dependency_links to nav_genetic.egg-info/dependency_links.txt
+[2.042s] writing entry points to nav_genetic.egg-info/entry_points.txt
+[2.043s] writing requirements to nav_genetic.egg-info/requires.txt
+[2.043s] writing top-level names to nav_genetic.egg-info/top_level.txt
+[2.092s] reading manifest file 'nav_genetic.egg-info/SOURCES.txt'
+[2.093s] writing manifest file 'nav_genetic.egg-info/SOURCES.txt'
+[2.118s] running build_ext
+[2.118s] Creating /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/python3.12/site-packages/nav-genetic.egg-link (link to .)
+[2.120s] Installing ga_train script to /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/nav_genetic
+[2.120s] Installing run_best script to /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/nav_genetic
+[2.120s] Installing wall_follower script to /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/nav_genetic
+[2.120s] 
+[2.120s] Installed /home/marina/Escritorio/var/VAR2026/build/nav_genetic
+[2.121s] running symlink_data
+[2.162s] Invoked command in '/home/marina/Escritorio/var/VAR2026/build/nav_genetic' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/marina/Escritorio/var/VAR2026/build/nav_genetic/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/marina/Escritorio/var/VAR2026/build/nav_genetic/build --no-deps symlink_data

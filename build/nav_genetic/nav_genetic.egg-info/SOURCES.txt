@@ -3,9 +3,11 @@ setup.cfg
 setup.py
 nav_genetic/__init__.py
 nav_genetic/controller.py
+nav_genetic/controller_NO.py
 nav_genetic/ga_train.py
 nav_genetic/monitor.py
 nav_genetic/run_best.py
+nav_genetic/vuelta_vuelta.py
 nav_genetic.egg-info/PKG-INFO
 nav_genetic.egg-info/SOURCES.txt
 nav_genetic.egg-info/dependency_links.txt

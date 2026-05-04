@@ -21,6 +21,7 @@
 #
 # Variables opcionales:
 #   SKIP_BUILD=1 ./run_practica2.sh   # no recompila, solo lanza
+#   AUTO_DRIVE=1 ./run_practica2.sh   # lanza tambien el wall_follower
 #
 
 set -u
@@ -29,6 +30,7 @@ set -u
 SERVICE="ros2_jazzy"
 CONTAINER="var_container"
 PKG_NAME="turtlebot_gazebo_race"
+CONTROL_PKG_NAME="nav_genetic"
 LAUNCH_FILE="create_multi_robot_race.launch.py"
 WS_IN_CONTAINER="/home/ros2_ws"
 TURTLEBOT3_MODEL="waffle"
@@ -86,12 +88,16 @@ fi
 
 # ─── Compilar el paquete dentro del contenedor ───────────────────────────────
 if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
-    echo ">>> colcon build --packages-select $PKG_NAME (dentro del contenedor)"
+    BUILD_PACKAGES="$PKG_NAME"
+    if [[ -d "$SCRIPT_DIR/ros2_ws/$CONTROL_PKG_NAME" ]]; then
+        BUILD_PACKAGES="$BUILD_PACKAGES $CONTROL_PKG_NAME"
+    fi
+    echo ">>> colcon build --packages-select $BUILD_PACKAGES (dentro del contenedor)"
     $DC exec -T "$SERVICE" bash -c "
         set -e
         source /opt/ros/jazzy/setup.bash
         cd $WS_IN_CONTAINER
-        colcon build --packages-select $PKG_NAME --symlink-install
+        colcon build --packages-select $BUILD_PACKAGES --symlink-install
     " || {
         echo "ERROR: el colcon build dentro del contenedor ha fallado" >&2
         exit 1
@@ -117,8 +123,12 @@ echo ">>> Usando terminal: $TERM_EMU"
 ROS_SRC="source /opt/ros/jazzy/setup.bash"
 WS_SRC="cd $WS_IN_CONTAINER && source install/setup.bash"
 EXPORT_MODEL="export TURTLEBOT3_MODEL=$TURTLEBOT3_MODEL"
+AUTO_DRIVE_ARG="auto_drive:=false"
+if [[ "${AUTO_DRIVE:-0}" == "1" ]]; then
+    AUTO_DRIVE_ARG="auto_drive:=true"
+fi
 
-INSIDE_SIM="$ROS_SRC && $WS_SRC && $EXPORT_MODEL && ros2 launch $PKG_NAME $LAUNCH_FILE"
+INSIDE_SIM="$ROS_SRC && $WS_SRC && $EXPORT_MODEL && ros2 launch $PKG_NAME $LAUNCH_FILE $AUTO_DRIVE_ARG"
 INSIDE_WORK="$ROS_SRC && $WS_SRC && $EXPORT_MODEL && exec bash"
 INSIDE_RVIZ="sleep $RVIZ_DELAY_SECONDS && $ROS_SRC && $WS_SRC && rviz2"
 

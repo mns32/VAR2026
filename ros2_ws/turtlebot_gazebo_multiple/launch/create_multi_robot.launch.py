@@ -1,9 +1,9 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, SetEnvironmentVariable
+from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
+from launch.substitutions import Command
 from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
@@ -15,6 +15,13 @@ def generate_launch_description():
     
     # Archivo del Mundo y Modelo
     sdf_file = os.path.join(pkg_share, 'worlds', 'Actors_GrannyAnnie.world')
+    gz_resource_path = ':'.join(filter(None, [
+        pkg_share,
+        os.path.join(pkg_share, 'models'),
+        pkg_turtlebot3_gazebo,
+        os.path.join(pkg_turtlebot3_gazebo, 'models'),
+        os.environ.get('GZ_SIM_RESOURCE_PATH', ''),
+    ]))
     
     # Obtener modelo del robot de variable de entorno o argumento
     turtlebot3_model = os.environ.get('TURTLEBOT3_MODEL', 'waffle')
@@ -89,15 +96,17 @@ def generate_launch_description():
         package='ros_gz_sim',
         executable='create',
         arguments=[
+            '-world', 'GrannyAnnie',
             '-name', 'turtlebot3',
             '-file', model_sdf_file,
             '-x', '-6.0',
             '-y', '-3.0',
             '-z', '0.2',
-            '-Y', '0.0' # Rotación (yaw)
+            '-Y', '0.0',
         ],
         output='screen'
     )
+    delayed_spawn = TimerAction(period=8.0, actions=[spawn_entity])
 
     # El Puente (Bridge) entre ROS 2 y Gazebo
     bridge = Node(
@@ -180,10 +189,11 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', gz_resource_path),
         gz_sim,
         joint_state_publisher,
         robot_state_publisher,
-        spawn_entity,
+        delayed_spawn,
         bridge,
         depth_camera_info,
         depth_to_points,

@@ -1,0 +1,192 @@
+[0.101s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--packages-select', 'nav_genetic', '--symlink-install']
+[0.102s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=True, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=16, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=['nav_genetic'], packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x700fad8c8440>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x700fad9ecc50>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x700fad9ecc50>>, mixin_verb=('build',))
+[0.144s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.144s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.144s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.144s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.144s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.144s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.144s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/marina/Escritorio/var/VAR2026'
+[0.144s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.145s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.145s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.145s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.145s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.145s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.145s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.145s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.145s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.178s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.178s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.178s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.179s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extensions ['ignore', 'ignore_ament_install']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extension 'ignore'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extension 'ignore_ament_install'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extensions ['colcon_pkg']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extension 'colcon_pkg'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extensions ['colcon_meta']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extension 'colcon_meta'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extensions ['ros']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extension 'ros'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extensions ['cmake', 'python']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extension 'cmake'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extension 'python'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extensions ['python_setup_py']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws) by extension 'python_setup_py'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/get_pointclouds) by extensions ['ignore', 'ignore_ament_install']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/get_pointclouds) by extension 'ignore'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/get_pointclouds) by extension 'ignore_ament_install'
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/get_pointclouds) by extensions ['colcon_pkg']
+[0.180s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/get_pointclouds) by extension 'colcon_pkg'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/get_pointclouds) by extensions ['colcon_meta']
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/get_pointclouds) by extension 'colcon_meta'
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/get_pointclouds) by extensions ['ros']
+[0.181s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/get_pointclouds) by extension 'ros'
+[0.184s] DEBUG:colcon.colcon_core.package_identification:Package 'ros2_ws/get_pointclouds' with type 'ros.ament_cmake' and name 'get_pointclouds'
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/nav_genetic) by extensions ['ignore', 'ignore_ament_install']
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/nav_genetic) by extension 'ignore'
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/nav_genetic) by extension 'ignore_ament_install'
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/nav_genetic) by extensions ['colcon_pkg']
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/nav_genetic) by extension 'colcon_pkg'
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/nav_genetic) by extensions ['colcon_meta']
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/nav_genetic) by extension 'colcon_meta'
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/nav_genetic) by extensions ['ros']
+[0.184s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/nav_genetic) by extension 'ros'
+[0.185s] DEBUG:colcon.colcon_core.package_identification:Package 'ros2_ws/nav_genetic' with type 'ros.ament_python' and name 'nav_genetic'
+[0.185s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_multiple) by extensions ['ignore', 'ignore_ament_install']
+[0.185s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_multiple) by extension 'ignore'
+[0.185s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_multiple) by extension 'ignore_ament_install'
+[0.185s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_multiple) by extensions ['colcon_pkg']
+[0.185s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_multiple) by extension 'colcon_pkg'
+[0.185s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_multiple) by extensions ['colcon_meta']
+[0.185s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_multiple) by extension 'colcon_meta'
+[0.185s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_multiple) by extensions ['ros']
+[0.185s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_multiple) by extension 'ros'
+[0.186s] DEBUG:colcon.colcon_core.package_identification:Package 'ros2_ws/turtlebot_gazebo_multiple' with type 'ros.ament_cmake' and name 'turtlebot_gazebo_multiple'
+[0.186s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_race) by extensions ['ignore', 'ignore_ament_install']
+[0.186s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_race) by extension 'ignore'
+[0.186s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_race) by extension 'ignore_ament_install'
+[0.186s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_race) by extensions ['colcon_pkg']
+[0.186s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_race) by extension 'colcon_pkg'
+[0.186s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_race) by extensions ['colcon_meta']
+[0.186s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_race) by extension 'colcon_meta'
+[0.186s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_race) by extensions ['ros']
+[0.186s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/turtlebot_gazebo_race) by extension 'ros'
+[0.187s] DEBUG:colcon.colcon_core.package_identification:Package 'ros2_ws/turtlebot_gazebo_race' with type 'ros.ament_cmake' and name 'turtlebot_gazebo_race'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extensions ['ignore', 'ignore_ament_install']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extension 'ignore'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extension 'ignore_ament_install'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extensions ['colcon_pkg']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extension 'colcon_pkg'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extensions ['colcon_meta']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extension 'colcon_meta'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extensions ['ros']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extension 'ros'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extensions ['cmake', 'python']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extension 'cmake'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extension 'python'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extensions ['python_setup_py']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica) by extension 'python_setup_py'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extensions ['ignore', 'ignore_ament_install']
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extension 'ignore'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extension 'ignore_ament_install'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extensions ['colcon_pkg']
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extension 'colcon_pkg'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extensions ['colcon_meta']
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extension 'colcon_meta'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extensions ['ros']
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extension 'ros'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extensions ['cmake', 'python']
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extension 'cmake'
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extension 'python'
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extensions ['python_setup_py']
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(ros2_ws/vision_robotica/worlds) by extension 'python_setup_py'
+[0.190s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.190s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.190s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.190s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.190s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.204s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'get_pointclouds' in 'ros2_ws/get_pointclouds'
+[0.204s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'turtlebot_gazebo_multiple' in 'ros2_ws/turtlebot_gazebo_multiple'
+[0.204s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'turtlebot_gazebo_race' in 'ros2_ws/turtlebot_gazebo_race'
+[0.204s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.204s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.207s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 404 installed packages in /opt/ros/jazzy
+[0.208s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.244s] Level 5:colcon.colcon_core.verb:set package 'nav_genetic' build argument 'cmake_args' from command line to 'None'
+[0.244s] Level 5:colcon.colcon_core.verb:set package 'nav_genetic' build argument 'cmake_target' from command line to 'None'
+[0.244s] Level 5:colcon.colcon_core.verb:set package 'nav_genetic' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.244s] Level 5:colcon.colcon_core.verb:set package 'nav_genetic' build argument 'cmake_clean_cache' from command line to 'False'
+[0.244s] Level 5:colcon.colcon_core.verb:set package 'nav_genetic' build argument 'cmake_clean_first' from command line to 'False'
+[0.244s] Level 5:colcon.colcon_core.verb:set package 'nav_genetic' build argument 'cmake_force_configure' from command line to 'False'
+[0.244s] Level 5:colcon.colcon_core.verb:set package 'nav_genetic' build argument 'ament_cmake_args' from command line to 'None'
+[0.244s] Level 5:colcon.colcon_core.verb:set package 'nav_genetic' build argument 'catkin_cmake_args' from command line to 'None'
+[0.244s] Level 5:colcon.colcon_core.verb:set package 'nav_genetic' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.244s] DEBUG:colcon.colcon_core.verb:Building package 'nav_genetic' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/marina/Escritorio/var/VAR2026/build/nav_genetic', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/marina/Escritorio/var/VAR2026/install/nav_genetic', 'merge_install': False, 'path': '/home/marina/Escritorio/var/VAR2026/ros2_ws/nav_genetic', 'symlink_install': True, 'test_result_base': None}
+[0.244s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.245s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.246s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/marina/Escritorio/var/VAR2026/ros2_ws/nav_genetic' with build type 'ament_python'
+[0.246s] Level 1:colcon.colcon_core.shell:create_environment_hook('nav_genetic', 'ament_prefix_path')
+[0.248s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.248s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/hook/ament_prefix_path.ps1'
+[0.249s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/hook/ament_prefix_path.dsv'
+[0.249s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/hook/ament_prefix_path.sh'
+[0.250s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.250s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.432s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/marina/Escritorio/var/VAR2026/ros2_ws/nav_genetic'
+[0.432s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.432s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.907s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/marina/Escritorio/var/VAR2026/build/nav_genetic': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/marina/Escritorio/var/VAR2026/build/nav_genetic/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/marina/Escritorio/var/VAR2026/build/nav_genetic/build --no-deps symlink_data
+[1.420s] Level 1:colcon.colcon_core.shell:create_environment_hook('nav_genetic', 'pythonpath_develop')
+[1.421s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/marina/Escritorio/var/VAR2026/build/nav_genetic/share/nav_genetic/hook/pythonpath_develop.ps1'
+[1.421s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/marina/Escritorio/var/VAR2026/build/nav_genetic' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/marina/Escritorio/var/VAR2026/build/nav_genetic/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/marina/Escritorio/var/VAR2026/build/nav_genetic/build --no-deps symlink_data
+[1.422s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/marina/Escritorio/var/VAR2026/build/nav_genetic/share/nav_genetic/hook/pythonpath_develop.dsv'
+[1.422s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/marina/Escritorio/var/VAR2026/build/nav_genetic/share/nav_genetic/hook/pythonpath_develop.sh'
+[1.425s] Level 1:colcon.colcon_core.environment:checking '/home/marina/Escritorio/var/VAR2026/install/nav_genetic' for CMake module files
+[1.425s] Level 1:colcon.colcon_core.environment:checking '/home/marina/Escritorio/var/VAR2026/install/nav_genetic' for CMake config files
+[1.425s] Level 1:colcon.colcon_core.environment:checking '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib'
+[1.425s] Level 1:colcon.colcon_core.environment:checking '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/bin'
+[1.426s] Level 1:colcon.colcon_core.environment:checking '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/pkgconfig/nav_genetic.pc'
+[1.426s] Level 1:colcon.colcon_core.environment:checking '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/python3.12/site-packages'
+[1.426s] Level 1:colcon.colcon_core.shell:create_environment_hook('nav_genetic', 'pythonpath')
+[1.426s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/hook/pythonpath.ps1'
+[1.426s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/hook/pythonpath.dsv'
+[1.426s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/hook/pythonpath.sh'
+[1.427s] Level 1:colcon.colcon_core.environment:checking '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/bin'
+[1.427s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(nav_genetic)
+[1.427s] INFO:colcon.colcon_core.shell:Creating package script '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/package.ps1'
+[1.428s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/package.dsv'
+[1.428s] INFO:colcon.colcon_core.shell:Creating package script '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/package.sh'
+[1.429s] INFO:colcon.colcon_core.shell:Creating package script '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/package.bash'
+[1.429s] INFO:colcon.colcon_core.shell:Creating package script '/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/nav_genetic/package.zsh'
+[1.430s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/marina/Escritorio/var/VAR2026/install/nav_genetic/share/colcon-core/packages/nav_genetic)
+[1.430s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[1.430s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[1.430s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[1.430s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[1.435s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[1.435s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[1.435s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[1.435s] DEBUG:colcon.colcon_notification.desktop_notification.notify2:Failed to initialize notify2: org.freedesktop.DBus.Error.AccessDenied: Failed to connect to socket /run/user/1000/bus: Operation not permitted
+[1.435s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[1.435s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/marina/Escritorio/var/VAR2026/install/local_setup.ps1'
+[1.436s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/marina/Escritorio/var/VAR2026/install/_local_setup_util_ps1.py'
+[1.436s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/marina/Escritorio/var/VAR2026/install/setup.ps1'
+[1.437s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/marina/Escritorio/var/VAR2026/install/local_setup.sh'
+[1.437s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/marina/Escritorio/var/VAR2026/install/_local_setup_util_sh.py'
+[1.438s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/marina/Escritorio/var/VAR2026/install/setup.sh'
+[1.439s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/marina/Escritorio/var/VAR2026/install/local_setup.bash'
+[1.439s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/marina/Escritorio/var/VAR2026/install/setup.bash'
+[1.439s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/marina/Escritorio/var/VAR2026/install/local_setup.zsh'
+[1.440s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/marina/Escritorio/var/VAR2026/install/setup.zsh'

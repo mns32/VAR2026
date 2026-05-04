@@ -1,0 +1,1 @@
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/ament_cmake_environment_hooks/local_setup.sh

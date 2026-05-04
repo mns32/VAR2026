@@ -1,0 +1,11 @@
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/uninstall.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/turtlebot_gazebo_race_uninstall.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/robot_description_topic_publisher.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/depth_camera_info_publisher.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/test.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/edit_cache.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/rebuild_cache.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/list_install_components.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/install.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/install/local.dir
+/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/CMakeFiles/install/strip.dir

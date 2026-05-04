@@ -1,9 +1,10 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, SetEnvironmentVariable
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, SetEnvironmentVariable, TimerAction
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
+from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
@@ -15,6 +16,13 @@ def generate_launch_description():
     
     # Archivo del Mundo y Modelo
     sdf_file = os.path.join(pkg_share, 'worlds', 'race.sdf')
+    gz_resource_path = ':'.join(filter(None, [
+        pkg_share,
+        os.path.join(pkg_share, 'models'),
+        pkg_turtlebot3_gazebo,
+        os.path.join(pkg_turtlebot3_gazebo, 'models'),
+        os.environ.get('GZ_SIM_RESOURCE_PATH', ''),
+    ]))
     
     # Obtener modelo del robot de variable de entorno o argumento
     turtlebot3_model = os.environ.get('TURTLEBOT3_MODEL', 'waffle')
@@ -89,15 +97,17 @@ def generate_launch_description():
         package='ros_gz_sim',
         executable='create',
         arguments=[
+            '-world', 'default',
             '-name', 'turtlebot3',
             '-file', model_sdf_file,
             '-x', '9.05',
             '-y', '9.00',
-            '-z', '0.0',
-            '-Y', '-3.11' # Rotación (yaw)
+            '-z', '0.05',
+            '-Y', '-1.57',
         ],
         output='screen'
     )
+    delayed_spawn = TimerAction(period=8.0, actions=[spawn_entity])
 
     # El Puente (Bridge) entre ROS 2 y Gazebo
     bridge = Node(
@@ -115,7 +125,7 @@ def generate_launch_description():
             '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
             '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
             # Comandos de velocidad
-            '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
+            '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
             # Sensores 
             # -- Láser
             '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
@@ -138,7 +148,7 @@ def generate_launch_description():
 
     # Publica CameraInfo de profundidad con timestamp/frame_id del depth image
     depth_camera_info = Node(
-        package='turtlebot_gazebo_multiple',
+        package='turtlebot_gazebo_race',
         executable='depth_camera_info_publisher',
         name='depth_camera_info_publisher',
         output='screen',
@@ -179,12 +189,37 @@ def generate_launch_description():
         output='screen',
     )
 
+    auto_drive = Node(
+        package='nav_genetic',
+        executable='wall_follower',
+        name='wall_follower',
+        output='screen',
+        condition=IfCondition(LaunchConfiguration('auto_drive')),
+        parameters=[{
+            'use_sim_time': True,
+            'target_distance': 0.55,
+            'kp': 0.9,
+            'ki': 0.0,
+            'kd': 0.0,
+            'linear_speed': 0.18,
+            'max_angular': 0.55,
+            'side': 'right',
+        }],
+    )
+
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'auto_drive',
+            default_value='false',
+            description='Lanza tambien nav_genetic/wall_follower para conducir autonomamente',
+        ),
+        SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', gz_resource_path),
         gz_sim,
         joint_state_publisher,
         robot_state_publisher,
-        spawn_entity,
+        delayed_spawn,
         bridge,
         depth_camera_info,
         depth_to_points,
+        auto_drive,
     ])

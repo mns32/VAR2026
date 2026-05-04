@@ -1,0 +1,67 @@
+[0.393s] Invoking command in '/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/marina/Escritorio/var/VAR2026/ros2_ws/turtlebot_gazebo_race -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race
+[0.587s] -- The C compiler identification is GNU 13.3.0
+[0.731s] -- The CXX compiler identification is GNU 13.3.0
+[0.764s] -- Detecting C compiler ABI info
+[0.953s] -- Detecting C compiler ABI info - done
+[0.976s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.977s] -- Detecting C compile features
+[0.978s] -- Detecting C compile features - done
+[1.002s] -- Detecting CXX compiler ABI info
+[1.214s] -- Detecting CXX compiler ABI info - done
+[1.232s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[1.232s] -- Detecting CXX compile features
+[1.233s] -- Detecting CXX compile features - done
+[1.250s] -- Found ament_cmake: 2.5.5 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[1.496s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[1.622s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[1.725s] -- Found rclcpp: 28.1.16 (/opt/ros/jazzy/share/rclcpp/cmake)
+[1.833s] -- Found rosidl_generator_c: 4.6.7 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+[1.875s] -- Found rosidl_generator_cpp: 4.6.7 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+[1.916s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.958s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[2.136s] -- Found rmw_implementation_cmake: 7.3.3 (/opt/ros/jazzy/share/rmw_implementation_cmake/cmake)
+[2.145s] -- Found rmw_fastrtps_cpp: 8.4.3 (/opt/ros/jazzy/share/rmw_fastrtps_cpp/cmake)
+[2.311s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.13")  
+[2.354s] -- Found FastRTPS: /opt/ros/jazzy/include (Required is at least version "2.13") 
+[2.402s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[2.560s] -- Found sensor_msgs: 5.3.6 (/opt/ros/jazzy/share/sensor_msgs/cmake)
+[2.902s] -- Configuring done (2.5s)
+[2.922s] -- Generating done (0.0s)
+[2.930s] -- Build files have been written to: /home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race
+[2.948s] Invoked command in '/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/marina/Escritorio/var/VAR2026/ros2_ws/turtlebot_gazebo_race -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race
+[2.949s] Invoking command in '/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race -- -j16 -l16
+[3.064s] [ 25%] Building CXX object CMakeFiles/robot_description_topic_publisher.dir/src/robot_description_topic_publisher.cpp.o
+[3.065s] [ 50%] Building CXX object CMakeFiles/depth_camera_info_publisher.dir/src/depth_camera_info_publisher.cpp.o
+[9.191s] [ 75%] Linking CXX executable robot_description_topic_publisher
+[9.470s] [ 75%] Built target robot_description_topic_publisher
+[13.915s] [100%] Linking CXX executable depth_camera_info_publisher
+[14.374s] [100%] Built target depth_camera_info_publisher
+[14.398s] Invoked command in '/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race -- -j16 -l16
+[14.416s] Invoking command in '/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race
+[14.434s] -- Install configuration: ""
+[14.435s] -- Execute custom install script
+[14.436s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/launch/__pycache__/create_multi_robot_race.launch.cpython-312.pyc
+[14.453s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/launch/create_multi_robot_race.launch.py
+[14.471s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/worlds/race.sdf
+[14.493s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/models/turtlebot3_waffle_kinect/model.config
+[14.509s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/models/turtlebot3_waffle_kinect/model.sdf
+[14.525s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/lib/turtlebot_gazebo_race/robot_description_topic_publisher
+[14.541s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/lib/turtlebot_gazebo_race/depth_camera_info_publisher
+[14.557s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/lib/turtlebot_gazebo_race/autonomous_driver.py
+[14.574s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/lib/turtlebot_gazebo_race/safe_cmd_vel.py
+[14.596s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/ament_index/resource_index/package_run_dependencies/turtlebot_gazebo_race
+[14.613s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/ament_index/resource_index/parent_prefix_path/turtlebot_gazebo_race
+[14.629s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/environment/ament_prefix_path.sh
+[14.645s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/environment/ament_prefix_path.dsv
+[14.662s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/environment/path.sh
+[14.683s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/environment/path.dsv
+[14.706s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/local_setup.bash
+[14.722s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/local_setup.sh
+[14.738s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/local_setup.zsh
+[14.753s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/local_setup.dsv
+[14.768s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/package.dsv
+[14.795s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/ament_index/resource_index/packages/turtlebot_gazebo_race
+[14.813s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/cmake/turtlebot_gazebo_raceConfig.cmake
+[14.829s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/cmake/turtlebot_gazebo_raceConfig-version.cmake
+[14.847s] -- Symlinking: /home/marina/Escritorio/var/VAR2026/install/turtlebot_gazebo_race/share/turtlebot_gazebo_race/package.xml
+[14.865s] Invoked command in '/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race

@@ -1,0 +1,1 @@
+ament_cmake_symlink_install_targets("TARGET_FILES" "/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/robot_description_topic_publisher" "/home/marina/Escritorio/var/VAR2026/build/turtlebot_gazebo_race/depth_camera_info_publisher" "TARGETS" "robot_description_topic_publisher" "depth_camera_info_publisher" "DESTINATION" "lib/turtlebot_gazebo_race")

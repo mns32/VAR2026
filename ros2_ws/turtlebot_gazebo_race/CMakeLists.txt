@@ -27,4 +27,10 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  scripts/autonomous_driver.py
+  scripts/safe_cmd_vel.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()

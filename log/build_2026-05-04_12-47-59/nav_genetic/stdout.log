@@ -1,0 +1,17 @@
+running develop
+running egg_info
+writing nav_genetic.egg-info/PKG-INFO
+writing dependency_links to nav_genetic.egg-info/dependency_links.txt
+writing entry points to nav_genetic.egg-info/entry_points.txt
+writing requirements to nav_genetic.egg-info/requires.txt
+writing top-level names to nav_genetic.egg-info/top_level.txt
+reading manifest file 'nav_genetic.egg-info/SOURCES.txt'
+writing manifest file 'nav_genetic.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/python3.12/site-packages/nav-genetic.egg-link (link to .)
+Installing ga_train script to /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/nav_genetic
+Installing run_best script to /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/nav_genetic
+Installing wall_follower script to /home/marina/Escritorio/var/VAR2026/install/nav_genetic/lib/nav_genetic
+
+Installed /home/marina/Escritorio/var/VAR2026/build/nav_genetic
+running symlink_data

@@ -1,0 +1,8 @@
+source;share/turtlebot_gazebo_race/hook/cmake_prefix_path.ps1
+source;share/turtlebot_gazebo_race/hook/cmake_prefix_path.dsv
+source;share/turtlebot_gazebo_race/hook/cmake_prefix_path.sh
+source;share/turtlebot_gazebo_race/local_setup.bash
+source;share/turtlebot_gazebo_race/local_setup.dsv
+source;share/turtlebot_gazebo_race/local_setup.ps1
+source;share/turtlebot_gazebo_race/local_setup.sh
+source;share/turtlebot_gazebo_race/local_setup.zsh
