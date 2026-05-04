@@ -52,7 +52,7 @@ BOUNDS = {
 KEYS = list(BOUNDS.keys())
 
 # Pose de spawn del robot (debe coincidir con el launch)
-SPAWN_X, SPAWN_Y, SPAWN_YAW = 9.05, 9.00, -1.57
+SPAWN_X, SPAWN_Y, SPAWN_YAW = 9.05, 9.00, 3.14
 WORLD_NAME = 'default'    # nombre del <world> en race.sdf
 
 OUTPUT_FILE = 'best_genome.json'
