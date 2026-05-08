@@ -8,23 +8,33 @@ partir de angle_min/angle_increment, que es lo que cambia entre simuladores.
 """
 import math
 import rclpy
+from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 
 
 DEFAULT_GENOME = {
-    'target_distance': 0.55,
+    'target_distance': 0.45,
     'kp': 0.9,
     'ki': 0.0,
     'kd': 0.0,
-    'linear_speed': 0.14,
-    'max_angular': 0.45,
+    'linear_speed': 0.22,
+    'max_angular': 0.72,
 }
 
 def clamp(value, lo, hi):
     return max(lo, min(hi, value))
+
+
+def normalize_angle(angle):
+    while angle > math.pi:
+        angle -= 2.0 * math.pi
+    while angle < -math.pi:
+        angle += 2.0 * math.pi
+    return angle
 
 
 class WallFollower(Node):
@@ -55,12 +65,21 @@ class WallFollower(Node):
         self.integral = 0.0
         self.last_time = self.get_clock().now()
         self.last_scan_time = None
+        self.first_scan_time = None
+        self.current_yaw = None
         self.last_cmd = Twist()
+        self.turn_direction = 0.0
+        self.turn_start_time = None
+        self.turn_start_yaw = None
+        self.turn_target_angle = math.radians(68.0)
+        self.turn_reason = ''
+        self.turn_cooldown_until = None
         self.enabled = True
         self.update_genome(genome)
 
         scan_qos = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
         self.scan_sub = self.create_subscription(LaserScan, '/scan', self.on_scan, scan_qos)
+        self.odom_sub = self.create_subscription(Odometry, '/odom', self.on_odom, 10)
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.watchdog = self.create_timer(1.0, self.on_watchdog)
         self.control_timer = self.create_timer(0.10, self.on_control)
@@ -138,7 +157,47 @@ class WallFollower(Node):
         if not self.enabled or not msg.ranges:
             return
         self.last_scan_time = self.get_clock().now()
+        if self.first_scan_time is None:
+            self.first_scan_time = self.last_scan_time
         self.scan = msg
+
+    def on_odom(self, msg):
+        q = msg.pose.pose.orientation
+        siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        self.current_yaw = math.atan2(siny_cosp, cosy_cosp)
+
+    def preferred_turn_direction(self):
+        return -1.0 if self.side == 'right' else 1.0
+
+    def latch_turn(self, direction, reason):
+        self.turn_direction = 1.0 if direction >= 0.0 else -1.0
+        self.turn_start_time = self.get_clock().now()
+        self.turn_start_yaw = self.current_yaw
+        self.turn_reason = reason
+
+    def in_turn_cooldown(self):
+        return (
+            self.turn_cooldown_until is not None
+            and self.get_clock().now() < self.turn_cooldown_until
+        )
+
+    def latched_turn_finished(self, front):
+        if self.turn_start_time is None:
+            return True
+
+        elapsed = (self.get_clock().now() - self.turn_start_time).nanoseconds * 1e-9
+        if elapsed > 2.4:
+            return True
+
+        if elapsed < 0.35:
+            return False
+
+        if self.current_yaw is None or self.turn_start_yaw is None:
+            return front > 1.05 and elapsed > 1.2
+
+        turned = abs(normalize_angle(self.current_yaw - self.turn_start_yaw))
+        return turned >= self.turn_target_angle and front > 0.65
 
     def on_control(self):
         if not self.enabled or not hasattr(self, 'scan'):
@@ -153,20 +212,93 @@ class WallFollower(Node):
         right = self.sector_distance(msg, -115, -75)
 
         cmd = Twist()
+        now = self.get_clock().now()
+        initial_elapsed = 999.0
+        if self.first_scan_time is not None:
+            initial_elapsed = (now - self.first_scan_time).nanoseconds * 1e-9
+
+        if initial_elapsed < 2.6 and front > 0.55:
+            cmd.linear.x = self.speed
+            cmd.angular.z = 0.0
+            self.cmd_pub.publish(cmd)
+            self.last_cmd = cmd
+            self.get_logger().info(
+                f"initial_straight t={initial_elapsed:.1f}s f={front:.2f} "
+                f"l={left:.2f} r={right:.2f} cmd v={cmd.linear.x:.2f} w=0.00",
+                throttle_duration_sec=1.0,
+            )
+            return
+
+        if self.turn_direction != 0.0:
+            if self.latched_turn_finished(front):
+                self.turn_direction = 0.0
+                self.turn_start_time = None
+                self.turn_start_yaw = None
+                self.turn_reason = ''
+                self.turn_cooldown_until = now + Duration(seconds=0.9)
+            else:
+                cmd.linear.x = 0.0 if front < 0.42 else 0.075
+                cmd.angular.z = self.turn_direction * self.max_angular
+                self.cmd_pub.publish(cmd)
+                self.last_cmd = cmd
+                turned = 0.0
+                if self.current_yaw is not None and self.turn_start_yaw is not None:
+                    turned = abs(normalize_angle(self.current_yaw - self.turn_start_yaw))
+                self.get_logger().info(
+                    f"turn_latch={self.turn_reason} f={front:.2f} fl={front_left:.2f} "
+                    f"fr={front_right:.2f} turned={math.degrees(turned):.0f} "
+                    f"cmd v={cmd.linear.x:.2f} w={cmd.angular.z:.2f}",
+                    throttle_duration_sec=1.0,
+                )
+                return
+
+        left_path_open = front_left > 1.05 or left > 1.10
+        right_path_open = front_right > 1.05 or right > 1.10
+        both_paths_open = left_path_open and right_path_open
+        preferred_path_strong = (
+            (front_right > 1.30 or right > 1.45)
+            if self.side == 'right'
+            else (front_left > 1.30 or left > 1.45)
+        )
+        intersection = (
+            front < 0.62
+            and both_paths_open
+            and preferred_path_strong
+            and not self.in_turn_cooldown()
+        )
+        if intersection and front > 0.55:
+            self.latch_turn(self.preferred_turn_direction(), 'intersection')
+            cmd.linear.x = 0.07
+            cmd.angular.z = self.turn_direction * self.max_angular
+            self.cmd_pub.publish(cmd)
+            self.last_cmd = cmd
+            return
 
         if front < 0.48:
+            if both_paths_open:
+                direction = self.preferred_turn_direction()
+            else:
+                direction = 1.0 if front_left >= front_right else -1.0
+            if not self.in_turn_cooldown():
+                self.latch_turn(direction, 'front_blocked')
             cmd.linear.x = 0.0
-            cmd.angular.z = self.max_angular if front_left >= front_right else -self.max_angular
+            cmd.angular.z = direction * self.max_angular
         else:
             sees_left = left < 2.8
             sees_right = right < 2.8
 
-            if sees_left and sees_right:
-                turn = 0.55 * clamp(left - right, -1.2, 1.2)
+            if self.side == 'right' and sees_right:
+                error = self.target - right
+                turn = -0.22 if error < -0.30 else 1.25 * clamp(error, -0.30, 0.8)
+            elif self.side == 'left' and sees_left:
+                error = left - self.target
+                turn = 0.22 if error > 0.30 else 1.25 * clamp(error, -0.8, 0.30)
             elif sees_right:
-                turn = 0.95 * clamp(self.target - right, -0.8, 0.8)
+                error = self.target - right
+                turn = -0.18 if error < -0.30 else 0.85 * clamp(error, -0.30, 0.8)
             elif sees_left:
-                turn = 0.75 * clamp(left - self.target, -0.8, 0.8)
+                error = left - self.target
+                turn = 0.18 if error > 0.30 else 0.85 * clamp(error, -0.8, 0.30)
             else:
                 turn = -0.12 if self.side == 'right' else 0.12
 
@@ -179,9 +311,9 @@ class WallFollower(Node):
             cmd.linear.x = self.speed
 
             if front < 0.85:
-                cmd.linear.x = min(cmd.linear.x, 0.08)
+                cmd.linear.x = min(cmd.linear.x, 0.12)
             if abs(cmd.angular.z) > 0.30:
-                cmd.linear.x = min(cmd.linear.x, 0.10)
+                cmd.linear.x = min(cmd.linear.x, 0.14)
 
         self.get_logger().info(
             f"scan f={front:.2f} fl={front_left:.2f} fr={front_right:.2f} "

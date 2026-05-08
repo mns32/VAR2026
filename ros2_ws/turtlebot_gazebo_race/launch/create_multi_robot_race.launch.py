@@ -4,7 +4,7 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, SetEnvironmentVariable, TimerAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, Command
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
 from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
@@ -16,13 +16,10 @@ def generate_launch_description():
     
     # Archivo del Mundo y Modelo
     sdf_file = os.path.join(pkg_share, 'worlds', 'race.sdf')
-    gz_resource_path = ':'.join(filter(None, [
-        pkg_share,
+    model_path = os.pathsep.join([
         os.path.join(pkg_share, 'models'),
-        pkg_turtlebot3_gazebo,
         os.path.join(pkg_turtlebot3_gazebo, 'models'),
-        os.environ.get('GZ_SIM_RESOURCE_PATH', ''),
-    ]))
+    ])
     
     # Obtener modelo del robot de variable de entorno o argumento
     turtlebot3_model = os.environ.get('TURTLEBOT3_MODEL', 'waffle')
@@ -102,12 +99,12 @@ def generate_launch_description():
             '-file', model_sdf_file,
             '-x', '9.05',
             '-y', '9.00',
-            '-z', '0.05',
-            '-Y', '3.14',
+            '-z', '0.0',
+            '-Y', '-3.11' # Rotación (yaw)
         ],
         output='screen'
     )
-    delayed_spawn = TimerAction(period=8.0, actions=[spawn_entity])
+    delayed_spawn_entity = TimerAction(period=8.0, actions=[spawn_entity])
 
     # El Puente (Bridge) entre ROS 2 y Gazebo
     bridge = Node(
@@ -197,12 +194,12 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('auto_drive')),
         parameters=[{
             'use_sim_time': True,
-            'target_distance': 0.55,
+            'target_distance': 0.45,
             'kp': 0.9,
             'ki': 0.0,
             'kd': 0.0,
-            'linear_speed': 0.18,
-            'max_angular': 0.55,
+            'linear_speed': 0.22,
+            'max_angular': 0.72,
             'side': 'right',
         }],
     )
@@ -213,11 +210,11 @@ def generate_launch_description():
             default_value='false',
             description='Lanza tambien nav_genetic/wall_follower para conducir autonomamente',
         ),
-        SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', gz_resource_path),
+        SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', model_path),
         gz_sim,
         joint_state_publisher,
         robot_state_publisher,
-        delayed_spawn,
+        delayed_spawn_entity,
         bridge,
         depth_camera_info,
         depth_to_points,
