@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""
-WallFollower para el circuito de la practica.
 
-Usa /scan con QoS BEST_EFFORT y publica /cmd_vel. La parte importante es que
-no asume que ranges[0] sea siempre el frente: convierte angulos a indices a
-partir de angle_min/angle_increment, que es lo que cambia entre simuladores.
-"""
 import math
 import rclpy
 from rclpy.duration import Duration
@@ -106,6 +100,7 @@ class WallFollower(Node):
     def publish_zero(self):
         self.cmd_pub.publish(Twist())
 
+        #Controla que el LiDAR funcione
     def on_watchdog(self):
         if self.last_scan_time is None:
             self.get_logger().warn(
@@ -153,7 +148,8 @@ class WallFollower(Node):
         samples.sort()
         return samples[min(len(samples) - 1, max(0, int(0.20 * len(samples))))]
 
-    def on_scan(self, msg):
+    #Almacena el último escaneo recibido y actualiza el instante temporal en el que se recibió
+    def on_scan(self, msg):  
         if not self.enabled or not msg.ranges:
             return
         self.last_scan_time = self.get_clock().now()
@@ -161,6 +157,7 @@ class WallFollower(Node):
             self.first_scan_time = self.last_scan_time
         self.scan = msg
 
+    #Proporciona información sobre la posición y orientación del robot.
     def on_odom(self, msg):
         q = msg.pose.pose.orientation
         siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
@@ -182,6 +179,7 @@ class WallFollower(Node):
             and self.get_clock().now() < self.turn_cooldown_until
         )
 
+    #Determina el tiempo de giro del robot
     def latched_turn_finished(self, front):
         if self.turn_start_time is None:
             return True
@@ -199,6 +197,7 @@ class WallFollower(Node):
         turned = abs(normalize_angle(self.current_yaw - self.turn_start_yaw))
         return turned >= self.turn_target_angle and front > 0.65
 
+    #Controla que el LiDAR funcione
     def on_control(self):
         if not self.enabled or not hasattr(self, 'scan'):
             return
